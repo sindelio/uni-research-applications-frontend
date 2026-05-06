@@ -3,6 +3,7 @@ import { onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../helpers/check-session-jwt.js';
 import exists from '../../../../helpers/exists.js';
+import toBase64 from '../../../../helpers/to-base-64.js';
 import request from '../../../../helpers/request.js';
 import Navbar from '../../../../components/app/navbar.jsx';
 import Heading from '../../../../components/app/heading.jsx';
@@ -31,6 +32,18 @@ async function readAccount() {
   return account;
 }
 
+async function checkReceiptSubmission(account) {
+  const isSubmitted = account?.receiptFile?.isSubmitted;
+  if (!isSubmitted) {
+    await Swal.fire({
+      title: 'Oops',
+      text: 'Por favor envie seu comprovante de inscrição antes de criar um projeto.',
+      confirmButtonText: 'OK',
+    });
+    window.location.href = '/app/participant/account';
+  }
+}
+
 async function addAccountInfo(account) {
   const firstAuthorEl = document.getElementById('author0');
   firstAuthorEl.textContent = `${account.name}`;
@@ -53,7 +66,7 @@ async function addNewAuthorListener() {
     const newAuthorId = `author${currentAuthorId}`;
     newAuthorEl.id = newAuthorId;
     newAuthorEl.classList =
-      'm-2 px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-purple-600 hover:text-white focus:outline-purple-600';
+      'm-2 px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-purple-600 hover:text-white hover:cursor-pointer focus:outline-purple-600';
     newAuthorEl.textContent = newAuthorName;
 
     const authorsEl = document.getElementById('authors');
@@ -94,6 +107,8 @@ async function addSubmitListener() {
   detailsSubmitEl.addEventListener('click', async (event) => {
     Swal.fire({ title: 'Please wait ...' });
     event.preventDefault();
+
+    // Get form data
     const detailsFormEl = document.querySelector('#detailsForm');
     const formData = new FormData(detailsFormEl);
     const title = formData.get('title');
@@ -107,7 +122,6 @@ async function addSubmitListener() {
         authors.push(trimmedAuthor);
       }
     });
-    const description = formData.get('description');
     const areaCheckboxEls = document.querySelectorAll('input[type="checkbox"]');
     const checkedAreaCheckboxEls = Array.from(areaCheckboxEls).filter(
       (checkboxEl) => checkboxEl.checked,
@@ -116,6 +130,12 @@ async function addSubmitListener() {
       const area = checkedAreaCheckboxEl.getAttribute('area');
       return area;
     });
+    const description = formData.get('description');
+    const type = formData.get('projectType');
+    const bannerEl = document.getElementById('bannerFile');
+    const bannerFile = bannerEl.files[0];
+
+    // Check input
     if (!exists(title) || title?.length < 3) {
       await Swal.fire({
         title: 'Oops',
@@ -156,6 +176,19 @@ async function addSubmitListener() {
       });
       return null;
     }
+    if (!exists(bannerFile)) {
+      await Swal.fire({
+        title: 'Oops',
+        text: 'Verifique o banner.',
+        confirmButtonText: 'OK',
+      });
+      return null;
+    }
+
+    // Convert the file to a Base64 string
+    const bannerFile64Encoded = await toBase64(bannerFile);
+
+    // Send request
     const responseJson = await request(
       'POST',
       '/participant/project',
@@ -163,11 +196,15 @@ async function addSubmitListener() {
         title,
         institution,
         authors,
-        description,
         areas,
+        description,
+        type,
+        bannerFile64Encoded, // This is now a long string
       },
       true,
     );
+
+    // Process response
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
@@ -177,12 +214,12 @@ async function addSubmitListener() {
       window.location.href = '/app/participant/dashboard';
       return null;
     }
-
-    Swal.fire({
+    await Swal.fire({
       title: 'Sucesso',
       text: 'Projeto submetido para avaliação!',
       confirmButtonText: 'OK',
     });
+    window.location.reload(); // Refresh to reset state
   });
 }
 
@@ -190,6 +227,7 @@ function CreateProject() {
   onMount(async () => {
     await checkSessionJwt();
     const account = await readAccount();
+    await checkReceiptSubmission(account);
     await addAccountInfo(account);
     await addRemoveAuthorListener('author0');
     await addNewAuthorListener();
@@ -203,18 +241,24 @@ function CreateProject() {
         <Heading>Novo Projeto</Heading>
         <form id="detailsForm" class="">
           <Divider inputClass="w-full bg-purple-500 border-purple-500"></Divider>
+
+          {/* Title */}
           <InputText
             id="title"
             label="Título *"
             size={24}
             placeholder=""
           ></InputText>
+
+          {/* Institution */}
           <InputText
             id="institution"
             label="Instituição *"
             size={24}
             placeholder=""
           ></InputText>
+
+          {/* Authors */}
           <div>
             <p>Autores *</p>
             <input
@@ -232,17 +276,13 @@ function CreateProject() {
             <button
               id="author0"
               type="button"
-              class="m-2 px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-purple-600 hover:text-white focus:outline-purple-600"
+              class="m-2 px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-purple-600 hover:text-white hover:cursor-pointer focus:outline-purple-600"
             ></button>
             <br />
           </div>
-          <TextArea
-            id="description"
-            label="Descrição * (max 512 caracteres)"
-            placeholder="Descrição do projeto .."
-            rows={8}
-            cols={48}
-          ></TextArea>
+          <br />
+
+          {/* Areas */}
           <div>
             <p class="my-2">Areas * (max 2)</p>
             <input id="area0" type="checkbox" area="Hematologia"></input>
@@ -294,6 +334,55 @@ function CreateProject() {
             <br />
           </div>
           <br />
+
+          {/* Description */}
+          <TextArea
+            id="description"
+            label="Descrição * (max 512 caracteres)"
+            placeholder="Descrição do projeto .."
+            rows={8}
+            cols={48}
+          ></TextArea>
+
+          {/* Type */}
+          <div class="mb-6">
+            <p class="mb-2">Tipo de Projeto *</p>
+            <div class="flex items-center space-x-6">
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="projectType"
+                  value="Convencional"
+                  checked
+                  class="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                />
+                <span class="ml-2 text-gray-700">Convencional</span>
+              </label>
+
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="projectType"
+                  value="Fotográfico"
+                  class="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                />
+                <span class="ml-2 text-gray-700">Fotográfico</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <p class="mb-2">Banner do Projeto (PDF ou imagem) *</p>
+            <input
+              type="file"
+              id="bannerFile"
+              name="bannerFile"
+              accept="application/pdf,image/*"
+              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+            />
+          </div>
+
+          {/* Submit */}
           <Button id="submit" type="button">
             Submeter para aprovação
           </Button>

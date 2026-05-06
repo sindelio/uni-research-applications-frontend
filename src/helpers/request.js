@@ -8,7 +8,7 @@ const {
   SUPPORT_EMAIL,
 } = env;
 
-async function request(method, path, data, auth) {
+async function request(method, path, data, isAuth) {
   try {
     const options = { 
       method,
@@ -16,12 +16,12 @@ async function request(method, path, data, auth) {
         'Content-Type': 'application/json',
       },
     };
-    if (auth) {
-      const jwt = localStorage.getItem(LOCAL_STORAGE_KEY);
-      options.headers.authorization = `Bearer ${jwt}`;
-    }
     if (method !== 'GET' && exists(data)) {
       options.body = JSON.stringify(data);
+    }
+    if (isAuth) {
+      const jwt = localStorage.getItem(LOCAL_STORAGE_KEY);
+      options.headers.authorization = `Bearer ${jwt}`;
     }
     const url = `${BACKEND_URL}${path}`;
     const response = await fetch(url, options);
