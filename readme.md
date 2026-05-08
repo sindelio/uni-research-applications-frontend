@@ -1,9 +1,9 @@
 TODO:
 - Participant
-  - Create Project
-    - Backend for institution
-    - Logic to block participants who havent submited their certs
   - Dashboard
+  - Project
+    - Resubmission when rejected
+  - Support
 - Website:
   - Certificates page
   - Home button not scrolling top

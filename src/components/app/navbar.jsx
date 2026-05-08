@@ -63,7 +63,7 @@ function Navbar() {
             <span class="ml-4 mt-0.5">Dashboard</span>
           </a>
           <a
-            href="/app/participant/projects"
+            href="/app/participant/project"
             class=" flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img id="api" src="/images/api.svg" class="h-6 w-6"></img>

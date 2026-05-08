@@ -223,7 +223,7 @@ async function addSubmitListener() {
   });
 }
 
-function CreateProject() {
+function ParticipantProjectCreate() {
   onMount(async () => {
     await checkSessionJwt();
     const account = await readAccount();
@@ -392,4 +392,4 @@ function CreateProject() {
   );
 }
 
-export default CreateProject;
+export default ParticipantProjectCreate;
