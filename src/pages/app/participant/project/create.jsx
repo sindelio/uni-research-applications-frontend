@@ -11,8 +11,7 @@ import InputText from '../../../../components/app/input-text.jsx';
 import Button from '../../../../components/app/button.jsx';
 import Divider from '../../../../components/app/divider.jsx';
 import TextArea from '../../../../components/app/text-area.jsx';
-
-const { SUPPORT_EMAIL } = env;
+import errorMessage from '../../../../helpers/error-message.js';
 
 const MAX_AREAS = 2;
 let currentAuthorId = 1;
@@ -22,7 +21,7 @@ async function readAccount() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: `Algo inesperado aconteceu. Por favor busque suporte no endereço eletrônico ${SUPPORT_EMAIL}`,
+      text: errorMessage,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';
@@ -208,7 +207,7 @@ async function addSubmitListener() {
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
-        text: `Algo inesperado aconteceu. Por favor busque suporte no endereço eletrônico ${SUPPORT_EMAIL}`,
+        text: errorMessage,
         confirmButtonText: 'OK',
       });
       window.location.href = '/app/participant/dashboard';

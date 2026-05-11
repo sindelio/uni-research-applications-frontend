@@ -7,9 +7,9 @@ import Navbar from '../../../../components/app/navbar.jsx';
 import Button from '../../../../components/app/button.jsx';
 import P from '../../../../components/app/paragraph.jsx';
 import InputNumber from '../../../../components/app/input-number.jsx';
+import errorMessage from '../../../../helpers/error-message.js';
 
 const {
-  SUPPORT_EMAIL,
   PROJECT_WAITING_EXAMINER,
   PROJECT_PENDING_REVIEW,
   PROJECT_APPROVED,
@@ -30,7 +30,7 @@ async function getList(pageRequested = 1) {
   if (responseJson.error !== null) {
     await Swal.fire({
       title: 'Oops',
-      text: `Algo inesperado aconteceu. Por favor busque suporte no endereço eletrônico ${SUPPORT_EMAIL}`,
+      text: errorMessage,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';

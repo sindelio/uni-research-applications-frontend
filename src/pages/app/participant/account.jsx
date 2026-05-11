@@ -12,15 +12,14 @@ import InputText from '../../../components/app/input-text.jsx';
 import InputPassword from '../../../components/app/input-password.jsx';
 import Button from '../../../components/app/button.jsx';
 import Divider from '../../../components/app/divider.jsx';
-
-const { SUPPORT_EMAIL } = env;
+import errorMessage from '../../../helpers/error-message.js';
 
 async function readAccount() {
   const responseJson = await request('GET', '/participant', null, true);
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: `Algo inesperado aconteceu. Por favor busque suporte no endereço eletrônico ${SUPPORT_EMAIL}`,
+      text: errorMessage,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';

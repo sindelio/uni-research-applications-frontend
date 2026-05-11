@@ -11,6 +11,7 @@ import SignUp from './pages/app/signup.jsx';
 import EmailConfirmation from './pages/app/email-confirmation.jsx';
 import PasswordRecovery from './pages/app/password-recovery.jsx';
 import PasswordReset from './pages/app/password-reset.jsx';
+import Support from './pages/app/support.jsx';
 import ParticipantDashboard from './pages/app/participant/dashboard.jsx';
 import ParticipantProject from './pages/app/participant/project.jsx';
 import ParticipantProjectCreate from './pages/app/participant/project/create.jsx';
@@ -67,6 +68,7 @@ render(
             </Route>
           </Route>
           <Route path="/account" component={ParticipantAccount}></Route>
+          <Route path="/support" component={Support}></Route>
         </Route>
       </Route>
       {/* 404 route */}

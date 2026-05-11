@@ -4,6 +4,7 @@ import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import P from '../../../../../components/app/paragraph.jsx';
+import errorMessage from '../../../../../helpers/error-message.js';
 
 const {
   PROJECT_WAITING_EXAMINER,
@@ -24,7 +25,7 @@ async function readProject() {
   if (responseJson.error !== null) {
     await Swal.fire({
       title: 'Oops',
-      text: 'Something unexpected happened. Please request support in the menu.',
+      text: errorMessage,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/dashboard';
