@@ -1,17 +1,15 @@
 import env from '../../../../../client-envs/current.js';
 import { onMount } from 'solid-js';
+import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
+import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
-import P from '../../../../../components/app/paragraph.jsx';
+import Heading from '../../../../../components/app/heading.jsx';
+import Button from '../../../../../components/app/button.jsx';
 import errorMessage from '../../../../../helpers/error-message.js';
 
-const {
-  PROJECT_WAITING_EXAMINER,
-  PROJECT_PENDING_REVIEW,
-  PROJECT_APPROVED,
-  PROJECT_REJECTED,
-} = env;
+const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
 
 async function readProject() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -28,80 +26,191 @@ async function readProject() {
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/dashboard';
+    window.location.href = '/app/participant/dashboard';
+    return null;
   }
-  const requestInfo = responseJson.data;
-  return requestInfo;
+  return responseJson.data;
+}
+
+// Helper to handle Buffer download
+function downloadBuffer(bufferObj, fileName) {
+  const bytes = new Uint8Array(bufferObj.data.data);
+  const blob = new Blob([bytes], { type: 'application/octet-stream' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName || 'banner-projeto';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }
 
 async function addProjectInfo(projectInfo) {
-  // Title
-  const titleEl = document.getElementById('title');
-  titleEl.textContent = `Títutlo: ${projectInfo?.title || '-'}`;
+  // Simple Text Fields
+  document.getElementById('title').textContent = projectInfo?.title || '-';
+  document.getElementById('institution').textContent =
+    projectInfo?.institution || '-';
+  document.getElementById('description').textContent =
+    projectInfo?.description || '-';
+  document.getElementById('type').textContent = projectInfo?.type || '-';
+  document.getElementById('createdAt').textContent =
+    projectInfo?.createdAt?.readableDate || '-';
 
-  // Status
-  let statusInfo = '<span class="text-amber-400">Aguardando avaliador</span>';
-  if (projectInfo.status === PROJECT_PENDING_REVIEW) {
-    statusInfo = '<span class="text-blue-400">Aguardando avaliação</span>';
-  }
-  if (projectInfo.status === PROJECT_APPROVED) {
-    statusInfo = '<span class="text-green-400">Aprovado</span>';
-  }
-  if (projectInfo.status === PROJECT_REJECTED) {
-    statusInfo = '<span class="text-red-400">Reprovado</span>';
-  }
+  // Status Badge Logic
   const statusEl = document.getElementById('status');
-  statusEl.innerHTML = `Estado: ${statusInfo}`;
+  let statusText = 'Aguardando avaliador';
+  let statusClass = 'bg-amber-100 text-amber-700 border-amber-200';
 
-  // Institution
-  const institutionEl = document.getElementById('institution');
-  institutionEl.textContent = `Instituição: ${projectInfo?.institution || '-'}`;
+  if (projectInfo.status === PROJECT_PENDING_REVIEW) {
+    statusText = 'Aguardando avaliação';
+    statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+  } else if (projectInfo.status === PROJECT_APPROVED) {
+    statusText = 'Aprovado';
+    statusClass = 'bg-green-100 text-green-700 border-green-200';
+  } else if (projectInfo.status === PROJECT_REJECTED) {
+    statusText = 'Reprovado';
+    statusClass = 'bg-red-100 text-red-700 border-red-200';
+  }
 
-  // Authors
-  const authorsEl = document.getElementById('authors');
-  authorsEl.textContent = `Autores: `;
+  statusEl.textContent = statusText;
+  statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
+
+  // Authors (Array of Objects)
+  const authorsContainer = document.getElementById('authors-list');
+  authorsContainer.innerHTML = ''; // Clear
   projectInfo.authors.forEach((author) => {
-    authorsEl.textContent = authorsEl.textContent.concat(`${author}; `);
+    const span = document.createElement('span');
+    span.className =
+      'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
+    span.textContent = `${author.name} — ${author.institution}`;
+    authorsContainer.appendChild(span);
   });
 
   // Areas
   const areasEl = document.getElementById('areas');
-  areasEl.textContent = 'Áreas: ';
-  projectInfo.areas.forEach((area) => {
-    areasEl.textContent = areasEl.textContent.concat(`${area}; `);
-  });
+  areasEl.textContent = projectInfo.areas.join(', ');
 
-  // Description
-  const descriptionEl = document.getElementById('description');
-  descriptionEl.textContent = `Descrição: ${projectInfo?.description || '-'}`;
-
-  // Type
-  const typeEl = document.getElementById('type');
-  typeEl.textContent = `Tipo: ${projectInfo?.type || '-'}`;
-
-  // CreatedAt
-  const createdAtEl = document.getElementById('createdAt');
-  createdAtEl.textContent = `Data de criação: ${projectInfo?.createdAt?.readableDate || '-'}`;
+  // Download Banner Listener
+  const downloadBtn = document.getElementById('downloadBanner');
+  if (projectInfo.bannerFile?.isSubmitted) {
+    downloadBtn.addEventListener('click', () => {
+      downloadBuffer(
+        projectInfo.bannerFile,
+        `banner_${projectInfo.title.replace(/\s+/g, '_')}`,
+      );
+    });
+  } else {
+    downloadBtn.classList.add('hidden');
+  }
 }
 
 function ParticipantProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
     const projectInfo = await readProject();
-    await addProjectInfo(projectInfo);
+    if (exists(projectInfo)) {
+      await addProjectInfo(projectInfo);
+    }
   });
+
   return (
-    <div class="flex flex-row text-lg">
-      <Navbar></Navbar>
-      <div class="ml-72 m-8">
-        <P id="title"></P>
-        <P id="status"></P>
-        <P id="institution"></P>
-        <P id="authors"></P>
-        <P id="areas"></P>
-        <P id="description"></P>
-        <P id="type"></P>
-        <P id="createdAt"></P>
+    <div class="flex flex-row min-h-screen bg-gray-50 text-gray-800">
+      <Navbar />
+      <div class="ml-72 m-8 w-full max-w-4xl">
+        <div class="flex justify-between items-center mb-6">
+          <Heading>Detalhes do Projeto</Heading>
+        </div>
+
+        <div class="bg-white shadow-sm border border-gray-200 rounded-xl p-8 space-y-6">
+          {/* Main Info */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-purple-600">
+              Título
+            </label>
+            <p id="title" class="text-2xl font-semibold mt-1"></p>
+          </section>
+
+          <section class="flex">
+            <div id="status"></div>
+          </section>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section>
+              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Instituição Sede
+              </label>
+              <p id="institution" class="mt-1 font-medium"></p>
+            </section>
+            <section>
+              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Tipo de Projeto
+              </label>
+              <p id="type" class="mt-1 font-medium"></p>
+            </section>
+          </div>
+
+          <hr class="border-gray-100" />
+
+          {/* Authors */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Equipe de Autores
+            </label>
+            <div id="authors-list" class="mt-2 flex flex-wrap gap-2"></div>
+          </section>
+
+          {/* Areas */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Áreas Atuantes
+            </label>
+            <p id="areas" class="mt-1 italic text-gray-600"></p>
+          </section>
+
+          {/* Description */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Descrição / Resumo
+            </label>
+            <p
+              id="description"
+              class="mt-2 text-gray-700 leading-relaxed whitespace-pre-wrap text-base"
+            ></p>
+          </section>
+
+          <hr class="border-gray-100" />
+
+          {/* Footer Info & Actions */}
+          <div class="flex flex-col justify-between items-left gap-4 pt-4">
+            <div>
+              <p class="text-sm text-gray-400">
+                Submetido em: <span id="createdAt" class="font-medium"></span>
+              </p>
+            </div>
+
+            <div class="flex flex-row items-center text-center gap-4">
+              <Button
+                id="downloadBanner"
+                inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Baixar Banner
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

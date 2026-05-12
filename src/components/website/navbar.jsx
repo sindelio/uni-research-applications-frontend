@@ -176,7 +176,7 @@ function Navbar() {
           class="px-6 py-4 text-white bg-purple-600 hover:underline rounded-full shadow opacity-75 focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
           <a
-            href="https://talentsourcery.io/app/signup"
+            href={`${FRONTEND_URL}/app/signup`}
             target="_blank"
             rel="noreferrer"
           >
