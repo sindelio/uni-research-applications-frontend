@@ -1,4 +1,3 @@
-import env from '../../../../client-envs/current.js';
 import { onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../helpers/check-session-jwt.js';
@@ -14,7 +13,9 @@ import TextArea from '../../../../components/app/text-area.jsx';
 import errorMessage from '../../../../helpers/error-message.js';
 
 const MAX_AREAS = 2;
-let currentAuthorIndex = 1;
+let authorIndex = 1;
+let keywordIndex = 1;
+let referenceIndex = 1;
 
 async function readAccount() {
   const responseJson = await request('GET', '/participant', null, true);
@@ -49,48 +50,56 @@ async function addAccountInfo(account) {
   // We use dataset to store the values for easy retrieval later
   firstAuthorEl.dataset.name = account.name;
   firstAuthorEl.dataset.institution = account.institution || '';
-  firstAuthorEl.textContent = `${account.name} (${account.institution || 'S/I'})`;
+  firstAuthorEl.textContent = `${account.name} (${account.institution})`;
 }
 
-async function addRemoveAuthorListener(authorButtonId) {
-  const authorButtonEl = document.getElementById(authorButtonId);
-  authorButtonEl.addEventListener('click', async (event) => {
-    authorButtonEl.remove();
+async function addRemoveElementListener(elementId) {
+  const el = document.getElementById(elementId);
+  el.addEventListener('click', async (event) => {
+    el.remove();
   });
 }
 
 async function addNewAuthorListener() {
-  const newAuthorButtonEl = document.getElementById('plusAuthorButton');
-  newAuthorButtonEl.addEventListener('click', async (event) => {
-    const nameEl = document.getElementById('authorName');
-    const institutionEl = document.getElementById('authorInstitution');
+  const plusAuthorButtonEl = document.getElementById('plusAuthorButton');
+  plusAuthorButtonEl.addEventListener('click', async (event) => {
+    const authorNameEl = document.getElementById('authorName');
+    const authorInstitutionEl = document.getElementById('authorInstitution');
 
-    if (nameEl.value.trim() === '' || institutionEl.value.trim() === '') {
+    // Check input
+    if (
+      authorNameEl.value.trim() === '' ||
+      authorInstitutionEl.value.trim() === ''
+    ) {
       Swal.fire('Oops', 'Preencha nome e instituição do autor.', 'warning');
       return;
     }
 
-    const newAuthorId = `author${currentAuthorIndex}`;
+    // Create element
+    const newAuthorId = `author${authorIndex}`;
     const newAuthorEl = document.createElement('button');
     newAuthorEl.id = newAuthorId;
     newAuthorEl.type = 'button';
-
-    // Store data in attributes
-    newAuthorEl.dataset.name = nameEl.value;
-    newAuthorEl.dataset.institution = institutionEl.value;
-
     newAuthorEl.classList =
       'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
-    newAuthorEl.textContent = `${nameEl.value} (${institutionEl.value})`;
+    newAuthorEl.textContent = `${authorNameEl.value} (${authorInstitutionEl.value})`;
 
+    // Store data in attributes
+    newAuthorEl.dataset.name = authorNameEl.value;
+    newAuthorEl.dataset.institution = authorInstitutionEl.value;
+
+    // Append new element
     document.getElementById('authors').appendChild(newAuthorEl);
 
     // Clear inputs
-    nameEl.value = '';
-    institutionEl.value = '';
+    authorNameEl.value = '';
+    authorInstitutionEl.value = '';
 
-    await addRemoveAuthorListener(newAuthorId);
-    currentAuthorIndex++;
+    // Add removal listener
+    await addRemoveElementListener(newAuthorId);
+
+    // Increment index
+    authorIndex++;
   });
 }
 
@@ -115,6 +124,80 @@ async function addMaxAreasListeners() {
   });
 }
 
+async function addNewKeywordListener() {
+  const plusKeywordButtonEl = document.getElementById('plusKeywordButton');
+  plusKeywordButtonEl.addEventListener('click', async (event) => {
+    const keywordEl = document.getElementById('keyword');
+
+    // Check input
+    if (keywordEl.value.trim() === '') {
+      Swal.fire('Oops', 'Preencha a palavra-chave.', 'warning');
+      return;
+    }
+
+    // Create element
+    const newKeywordId = `keyword${keywordIndex}`;
+    const newKeywordEl = document.createElement('button');
+    newKeywordEl.id = newKeywordId;
+    newKeywordEl.type = 'button';
+    newKeywordEl.classList =
+      'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+    newKeywordEl.textContent = `${keywordEl.value}`;
+
+    // Store data in attributes
+    newKeywordEl.dataset.keyword = keywordEl.value;
+
+    // Append new element
+    document.getElementById('keywords').appendChild(newKeywordEl);
+
+    // Clear inputs
+    keywordEl.value = '';
+
+    // Add removal listener
+    await addRemoveElementListener(newKeywordId);
+
+    // Increment index
+    keywordIndex++;
+  });
+}
+
+async function addNewReferenceListener() {
+  const plusReferenceButtonEl = document.getElementById('plusReferenceButton');
+  plusReferenceButtonEl.addEventListener('click', async (event) => {
+    const referenceEl = document.getElementById('reference');
+
+    // Check input
+    if (referenceEl.value.trim() === '') {
+      Swal.fire('Oops', 'Preencha a referência.', 'warning');
+      return;
+    }
+
+    // Create element
+    const newReferenceId = `reference${referenceIndex}`;
+    const newReferenceEl = document.createElement('button');
+    newReferenceEl.id = newReferenceId;
+    newReferenceEl.type = 'button';
+    newReferenceEl.classList =
+      'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+    newReferenceEl.textContent = `${referenceEl.value}`;
+
+    // Store data in attributes
+    newReferenceEl.dataset.reference = referenceEl.value;
+
+    // Append new element
+    document.getElementById('references').appendChild(newReferenceEl);
+
+    // Clear inputs
+    referenceEl.value = '';
+
+    // Add removal listener
+    await addRemoveElementListener(newReferenceId);
+
+    // Increment index
+    referenceIndex++;
+  });
+}
+
 async function addSubmitListener() {
   const detailsSubmitEl = document.getElementById('submit');
   detailsSubmitEl.addEventListener('click', async (event) => {
@@ -131,9 +214,9 @@ async function addSubmitListener() {
     // Authors
     const authors = [];
     const authorButtonEls = document.querySelectorAll('#authors button');
-    authorButtonEls.forEach((btn) => {
-      const name = btn.dataset.name;
-      const institution = btn.dataset.institution;
+    authorButtonEls.forEach((authorButtonEl) => {
+      const name = authorButtonEl.dataset.name;
+      const institution = authorButtonEl.dataset.institution;
 
       if (name && institution) {
         authors.push({
@@ -153,8 +236,30 @@ async function addSubmitListener() {
       return area;
     });
 
-    // Description
-    const description = formData.get('description');
+    // Keywords
+    const keywords = [];
+    const keywordButtonEls = document.querySelectorAll('#keywords button');
+    keywordButtonEls.forEach((keywordButtonEl) => {
+      const keyword = keywordButtonEl.dataset.keyword;
+
+      if (keyword) {
+        keywords.push(keyword.trim());
+      }
+    });
+
+    // Summary
+    const summary = formData.get('summary');
+
+    // References
+    const references = [];
+    const referenceButtonEls = document.querySelectorAll('#references button');
+    referenceButtonEls.forEach((referenceButtonEl) => {
+      const reference = referenceButtonEl.dataset.reference;
+
+      if (reference) {
+        references.push(reference.trim());
+      }
+    });
 
     // Type
     const type = formData.get('projectType');
@@ -172,14 +277,6 @@ async function addSubmitListener() {
       });
       return null;
     }
-    // if (!exists(institution) || institution?.length < 2) {
-    //   await Swal.fire({
-    //     title: 'Oops',
-    //     text: 'Verifique a instituição.',
-    //     confirmButtonText: 'OK',
-    //   });
-    //   return null;
-    // }
     if (authors.length < 1) {
       await Swal.fire({
         title: 'Oops',
@@ -188,10 +285,26 @@ async function addSubmitListener() {
       });
       return null;
     }
-    if (!exists(description) || description?.length < 3) {
+    if (keywords.length < 1) {
       await Swal.fire({
         title: 'Oops',
-        text: 'Verifique a descrição.',
+        text: 'Verifique as palavras-chave.',
+        confirmButtonText: 'OK',
+      });
+      return null;
+    }
+    if (!exists(summary) || summary.length < 3) {
+      await Swal.fire({
+        title: 'Oops',
+        text: 'Verifique o resumo.',
+        confirmButtonText: 'OK',
+      });
+      return null;
+    }
+    if (references.length < 1) {
+      await Swal.fire({
+        title: 'Oops',
+        text: 'Verifique as referências.',
         confirmButtonText: 'OK',
       });
       return null;
@@ -222,10 +335,11 @@ async function addSubmitListener() {
       '/participant/project',
       {
         title,
-        // institution,
         authors,
         areas,
-        description,
+        keywords,
+        summary,
+        references,
         type,
         bannerFile64Encoded, // This is now a long string
       },
@@ -257,9 +371,11 @@ function ParticipantProjectCreate() {
     const account = await readAccount();
     await checkReceiptSubmission(account);
     await addAccountInfo(account);
-    await addRemoveAuthorListener('author0');
+    await addRemoveElementListener('author0');
     await addNewAuthorListener();
     await addMaxAreasListeners();
+    await addNewKeywordListener();
+    await addNewReferenceListener();
     await addSubmitListener();
   });
   return (
@@ -278,18 +394,10 @@ function ParticipantProjectCreate() {
             placeholder=""
           ></InputText>
 
-          {/* Institution */}
-          {/* <InputText
-            id="institution"
-            label="Instituição *"
-            size={24}
-            placeholder=""
-          ></InputText> */}
-
           {/* Authors */}
           <div>
             <p class="mb-2">Autores *</p>
-            <div class="flex flex-col gap-2 mb-4">
+            <div class="flex flex-col gap-2">
               <input
                 type="text"
                 id="authorName"
@@ -309,8 +417,8 @@ function ParticipantProjectCreate() {
               </Button>
             </div>
           </div>
-
-          <div id="authors" class="flex flex-wrap gap-2">
+          {/* Added authors */}
+          <div id="authors" class="flex flex-wrap gap-2 mb-8">
             {/* The first author (the user) will be injected here */}
             <button
               id="author0"
@@ -318,7 +426,6 @@ function ParticipantProjectCreate() {
               class="px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400"
             ></button>
           </div>
-          <br />
 
           {/* Areas */}
           <div>
@@ -373,14 +480,52 @@ function ParticipantProjectCreate() {
           </div>
           <br />
 
-          {/* Description */}
+          {/* Keywords */}
+          <div>
+            <p class="mb-2">Palavras-chave *</p>
+            <div class="flex flex-col gap-2">
+              <input
+                type="text"
+                id="keyword"
+                placeholder="Palavra-chave"
+                class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
+                size={24}
+              />
+              <Button id="plusKeywordButton" inputClass="w-fit">
+                Adicionar Palavra-Chave
+              </Button>
+            </div>
+          </div>
+          {/* Added keywords */}
+          <div id="keywords" class="flex flex-wrap gap-2 mb-8"></div>
+
+          {/* Summary */}
           <TextArea
-            id="description"
-            label="Descrição * (max 512 caracteres)"
-            placeholder="Descrição do projeto .."
+            id="summary"
+            label="Resumo * (max 512 caracteres)"
+            placeholder="Resumo do projeto .."
             rows={8}
             cols={48}
           ></TextArea>
+
+          {/* References */}
+          <div>
+            <p class="mb-2">Referências *</p>
+            <div class="flex flex-col gap-2">
+              <input
+                type="text"
+                id="reference"
+                placeholder="Referência"
+                class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
+                size={24}
+              />
+              <Button id="plusReferenceButton" inputClass="w-fit">
+                Adicionar Referência
+              </Button>
+            </div>
+          </div>
+          {/* Added keywords */}
+          <div id="references" class="flex flex-wrap gap-2 mb-8"></div>
 
           {/* Type */}
           <div class="mb-6">

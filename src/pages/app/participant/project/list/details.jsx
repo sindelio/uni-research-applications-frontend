@@ -46,40 +46,14 @@ function downloadBuffer(bufferObj, fileName) {
   window.URL.revokeObjectURL(url);
 }
 
-async function addProjectInfo(projectInfo) {
-  // Simple Text Fields
-  document.getElementById('title').textContent = projectInfo?.title || '-';
-  document.getElementById('institution').textContent =
-    projectInfo?.institution || '-';
-  document.getElementById('description').textContent =
-    projectInfo?.description || '-';
-  document.getElementById('type').textContent = projectInfo?.type || '-';
-  document.getElementById('createdAt').textContent =
-    projectInfo?.createdAt?.readableDate || '-';
-
-  // Status Badge Logic
-  const statusEl = document.getElementById('status');
-  let statusText = 'Aguardando avaliador';
-  let statusClass = 'bg-amber-100 text-amber-700 border-amber-200';
-
-  if (projectInfo.status === PROJECT_PENDING_REVIEW) {
-    statusText = 'Aguardando avaliação';
-    statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
-  } else if (projectInfo.status === PROJECT_APPROVED) {
-    statusText = 'Aprovado';
-    statusClass = 'bg-green-100 text-green-700 border-green-200';
-  } else if (projectInfo.status === PROJECT_REJECTED) {
-    statusText = 'Reprovado';
-    statusClass = 'bg-red-100 text-red-700 border-red-200';
-  }
-
-  statusEl.textContent = statusText;
-  statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
+async function addProjectInfo(project) {
+  // Title
+  document.getElementById('title').textContent = project?.title || '-';
 
   // Authors (Array of Objects)
   const authorsContainer = document.getElementById('authors-list');
   authorsContainer.innerHTML = ''; // Clear
-  projectInfo.authors.forEach((author) => {
+  project.authors.forEach((author) => {
     const span = document.createElement('span');
     span.className =
       'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
@@ -89,15 +63,67 @@ async function addProjectInfo(projectInfo) {
 
   // Areas
   const areasEl = document.getElementById('areas');
-  areasEl.textContent = projectInfo.areas.join(', ');
+  areasEl.textContent = project.areas.join(', ');
+
+  // Keywords
+  const keywordsContainer = document.getElementById('keywords-list');
+  keywordsContainer.innerHTML = '';
+  if (project.keywords && project.keywords.length > 0) {
+    project.keywords.forEach((keyword) => {
+      const span = document.createElement('span');
+      span.className =
+        'text-xs font-medium text-purple-700 bg-purple-50 border border-purple-100 rounded-md px-2.5 py-0.5 w-fit';
+      span.textContent = keyword;
+      keywordsContainer.appendChild(span);
+    });
+  } else {
+    keywordsContainer.textContent = '-';
+  }
+
+  // Summary
+  document.getElementById('summary').textContent = project?.summary || '-';
+  document.getElementById('type').textContent = project?.type || '-';
+  document.getElementById('createdAt').textContent =
+    project?.createdAt?.readableDate || '-';
+
+  // References
+  const referencesContainer = document.getElementById('references-list');
+  referencesContainer.innerHTML = '';
+  if (project.references && project.references.length > 0) {
+    project.references.forEach((reference) => {
+      const li = document.createElement('li');
+      li.className = 'text-sm text-gray-700';
+      li.textContent = reference;
+      referencesContainer.appendChild(li);
+    });
+  } else {
+    referencesContainer.textContent = '-';
+  }
+
+  // Status Badge Logic
+  const statusEl = document.getElementById('status');
+  let statusText = 'Aguardando avaliador';
+  let statusClass = 'bg-amber-100 text-amber-700 border-amber-200';
+  if (project.status === PROJECT_PENDING_REVIEW) {
+    statusText = 'Aguardando avaliação';
+    statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+  } else if (project.status === PROJECT_APPROVED) {
+    statusText = 'Aprovado';
+    statusClass = 'bg-green-100 text-green-700 border-green-200';
+  } else if (project.status === PROJECT_REJECTED) {
+    statusText = 'Reprovado';
+    statusClass = 'bg-red-100 text-red-700 border-red-200';
+  }
+  statusEl.textContent = statusText;
+  statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
   // Download Banner Listener
   const downloadBtn = document.getElementById('downloadBanner');
-  if (projectInfo.bannerFile?.isSubmitted) {
+  if (project.bannerFile?.isSubmitted) {
     downloadBtn.addEventListener('click', () => {
       downloadBuffer(
-        projectInfo.bannerFile,
-        `banner_${projectInfo.title.replace(/\s+/g, '_')}`,
+        project.bannerFile,
+        `banner_${project.title.replace(/\s+/g, '_')}`,
       );
     });
   } else {
@@ -105,13 +131,21 @@ async function addProjectInfo(projectInfo) {
   }
 }
 
+async function addBackListener() {
+  const backButtonEl = document.getElementById('back');
+  backButtonEl.addEventListener('click', () => {
+    window.history.back();
+  });
+}
+
 function ParticipantProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
-    const projectInfo = await readProject();
-    if (exists(projectInfo)) {
-      await addProjectInfo(projectInfo);
+    const project = await readProject();
+    if (exists(project)) {
+      await addProjectInfo(project);
     }
+    await addBackListener();
   });
 
   return (
@@ -138,12 +172,6 @@ function ParticipantProjectListDetails() {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <section>
               <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Instituição Sede
-              </label>
-              <p id="institution" class="mt-1 font-medium"></p>
-            </section>
-            <section>
-              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Tipo de Projeto
               </label>
               <p id="type" class="mt-1 font-medium"></p>
@@ -168,15 +196,35 @@ function ParticipantProjectListDetails() {
             <p id="areas" class="mt-1 italic text-gray-600"></p>
           </section>
 
-          {/* Description */}
+          {/* Keywords */}
           <section>
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
-              Descrição / Resumo
+              Palavras-chave
+            </label>
+            <div id="keywords-list" class="mt-2 flex flex-wrap gap-2"></div>
+          </section>
+          <hr class="border-gray-100" />
+
+          {/* Summary */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Resumo
             </label>
             <p
-              id="description"
+              id="summary"
               class="mt-2 text-gray-700 leading-relaxed whitespace-pre-wrap text-base"
             ></p>
+          </section>
+
+          {/* References */}
+          <section>
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Referências Bibliográficas
+            </label>
+            <ol
+              id="references-list"
+              class="mt-2 space-y-1 list-decimal list-inside text-gray-700"
+            ></ol>
           </section>
 
           <hr class="border-gray-100" />
@@ -190,6 +238,7 @@ function ParticipantProjectListDetails() {
             </div>
 
             <div class="flex flex-row items-center text-center gap-4">
+              {/* Download button */}
               <Button
                 id="downloadBanner"
                 inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
@@ -207,6 +256,26 @@ function ParticipantProjectListDetails() {
                   />
                 </svg>
                 Baixar Banner
+              </Button>
+
+              {/* Back button */}
+              <Button
+                id="back"
+                inputClass="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Voltar
               </Button>
             </div>
           </div>
