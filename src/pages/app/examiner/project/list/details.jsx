@@ -1,8 +1,7 @@
 import env from '../../../../../client-envs/current.js';
-import { onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
-import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
@@ -11,12 +10,14 @@ import errorMessage from '../../../../../helpers/error-message.js';
 
 const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
 
+const [getProject, setProject] = createSignal(null);
+
 async function readProject() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
   const responseJson = await request(
     'GET',
-    `/participant/project?id=${id}`,
+    `/examiner/project?id=${id}`,
     null,
     true,
   );
@@ -26,10 +27,11 @@ async function readProject() {
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/participant/dashboard';
+    window.location.href = '/app/examiner/dashboard';
     return null;
   }
-  return responseJson.data;
+  const project = responseJson.data;
+  setProject(project);
 }
 
 // Helper to handle Buffer download
@@ -46,19 +48,23 @@ function downloadBuffer(bufferObj, fileName) {
   window.URL.revokeObjectURL(url);
 }
 
-async function addProjectInfo(project) {
+async function addProjectInfo() {
+  // Get project
+  const project = getProject();
+  console.log(project);
+
   // Title
   document.getElementById('title').textContent = project?.title || '-';
 
   // Authors (Array of Objects)
-  const authorsContainer = document.getElementById('authors-list');
-  authorsContainer.innerHTML = ''; // Clear
+  const authorsEl = document.getElementById('authors-list');
+  authorsEl.innerHTML = ''; // Clear
   project.authors.forEach((author) => {
     const span = document.createElement('span');
     span.className =
       'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
     span.textContent = `${author.name} — ${author.institution}`;
-    authorsContainer.appendChild(span);
+    authorsEl.appendChild(span);
   });
 
   // Areas
@@ -82,7 +88,11 @@ async function addProjectInfo(project) {
 
   // Summary
   document.getElementById('summary').textContent = project?.summary || '-';
+
+  // Type
   document.getElementById('type').textContent = project?.type || '-';
+
+  // Creation date
   document.getElementById('createdAt').textContent =
     project?.createdAt?.readableDate || '-';
 
@@ -118,16 +128,16 @@ async function addProjectInfo(project) {
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
   // Download Banner Listener
-  const downloadBtn = document.getElementById('downloadBanner');
+  const downloadEl = document.getElementById('downloadBanner');
   if (project.bannerFile?.isSubmitted) {
-    downloadBtn.addEventListener('click', () => {
+    downloadEl.addEventListener('click', () => {
       downloadBuffer(
         project.bannerFile,
         `banner_${project.title.replace(/\s+/g, '_')}`,
       );
     });
   } else {
-    downloadBtn.classList.add('hidden');
+    downloadEl.classList.add('hidden');
   }
 }
 
@@ -138,13 +148,11 @@ async function addBackListener() {
   });
 }
 
-function ParticipantProjectListDetails() {
+function ExaminerProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
-    const project = await readProject();
-    if (exists(project)) {
-      await addProjectInfo(project);
-    }
+    await readProject();
+    await addProjectInfo();
     await addBackListener();
   });
 
@@ -285,4 +293,4 @@ function ParticipantProjectListDetails() {
   );
 }
 
-export default ParticipantProjectListDetails;
+export default ExaminerProjectListDetails;

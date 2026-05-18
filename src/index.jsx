@@ -20,6 +20,9 @@ import ParticipantProjectListDetails from './pages/app/participant/project/list/
 import ParticipantAccount from './pages/app/participant/account.jsx';
 import ExaminerDashboard from './pages/app/examiner/dashboard.jsx';
 import ExaminerAccount from './pages/app/examiner/account.jsx';
+import ExaminerProject from './pages/app/examiner/project.jsx';
+import ExaminerProjectList from './pages/app/examiner/project/list.jsx';
+import ExaminerProjectListDetails from './pages/app/examiner/project/list/details.jsx';
 
 // 404 page
 import NoMatch from './pages/no-match.jsx';
@@ -75,17 +78,16 @@ render(
         {/* Examiner routes */}
         <Route path="/examiner">
           <Route path="/dashboard" component={ExaminerDashboard}></Route>
-          {/* <Route path="/project">
-            <Route path="/" component={ParticipantProject}></Route>
-            <Route path="/create" component={ParticipantProjectCreate}></Route>
+          <Route path="/project">
+            <Route path="/" component={ExaminerProject}></Route>
             <Route path="/list">
-              <Route path="/" component={ParticipantProjectList}></Route>
+              <Route path="/" component={ExaminerProjectList}></Route>
               <Route
                 path="/details"
-                component={ParticipantProjectListDetails}
+                component={ExaminerProjectListDetails}
               ></Route>
             </Route>
-          </Route> */}
+          </Route>
           <Route path="/account" component={ExaminerAccount}></Route>
         </Route>
 
