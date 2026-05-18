@@ -9,7 +9,7 @@ import InputText from '../../components/app/input-text.jsx';
 import InputPassword from '../../components/app/input-password.jsx';
 import Select from '../../components/app/select.jsx';
 
-const { LOCAL_STORAGE_KEY } = env;
+const { LOCAL_STORAGE_JWT, LOCAL_STORAGE_USER_TYPE } = env;
 
 async function addSubmitListener() {
   const formEl = document.querySelector('#form');
@@ -29,7 +29,8 @@ async function addSubmitListener() {
         userCredentials,
       );
       if (responseJson.success === true) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, responseJson.data.jwt);
+        localStorage.setItem(LOCAL_STORAGE_JWT, responseJson.data.jwt);
+        localStorage.setItem(LOCAL_STORAGE_USER_TYPE, userType);
         window.location.href = `/app/${userType}/dashboard`;
       } else if (responseJson?.error) {
         await Swal.fire({

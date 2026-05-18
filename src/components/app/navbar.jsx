@@ -2,7 +2,9 @@ import env from '../../client-envs/current';
 import { onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 
-const { LOCAL_STORAGE_KEY } = env;
+const { LOCAL_STORAGE_JWT, LOCAL_STORAGE_USER_TYPE } = env;
+
+const userType = localStorage.getItem(LOCAL_STORAGE_USER_TYPE);
 
 async function windowWidthHandler() {
   const windowInnerWidth = window.innerWidth;
@@ -26,7 +28,7 @@ async function addSignOutListener() {
       text: 'Sessão encerrada.',
       confirmButtonText: 'OK',
     });
-    localStorage.setItem(LOCAL_STORAGE_KEY, '');
+    localStorage.setItem(LOCAL_STORAGE_JWT, '');
     window.location.href = '/app/signin';
   });
 }
@@ -52,7 +54,7 @@ function Navbar() {
         />
         <nav class="mx-auto text-center">
           <a
-            href="/app/participant/dashboard"
+            href={`/app/${userType}/dashboard`}
             class=" flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img
@@ -63,21 +65,21 @@ function Navbar() {
             <span class="ml-4 mt-0.5">Dashboard</span>
           </a>
           <a
-            href="/app/participant/project"
+            href={`/app/${userType}/project`}
             class=" flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img id="api" src="/images/api.svg" class="h-6 w-6"></img>
             <span class="ml-4 mt-0.5">Projetos</span>
           </a>
           <a
-            href="/app/participant/account"
+            href={`/app/${userType}/account`}
             class="flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img id="account" src="/images/account.svg" class="h-6 w-6"></img>
             <span class="ml-4 mt-0.5">Conta</span>
           </a>
           <a
-            href="/app/participant/support"
+            href="/app/support"
             class="flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img id="support" src="/images/support.svg" class="h-6 w-6"></img>

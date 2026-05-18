@@ -18,6 +18,8 @@ import ParticipantProjectCreate from './pages/app/participant/project/create.jsx
 import ParticipantProjectList from './pages/app/participant/project/list.jsx';
 import ParticipantProjectListDetails from './pages/app/participant/project/list/details.jsx';
 import ParticipantAccount from './pages/app/participant/account.jsx';
+import ExaminerDashboard from './pages/app/examiner/dashboard.jsx';
+import ExaminerAccount from './pages/app/examiner/account.jsx';
 
 // 404 page
 import NoMatch from './pages/no-match.jsx';
@@ -68,9 +70,29 @@ render(
             </Route>
           </Route>
           <Route path="/account" component={ParticipantAccount}></Route>
-          <Route path="/support" component={Support}></Route>
         </Route>
+
+        {/* Examiner routes */}
+        <Route path="/examiner">
+          <Route path="/dashboard" component={ExaminerDashboard}></Route>
+          {/* <Route path="/project">
+            <Route path="/" component={ParticipantProject}></Route>
+            <Route path="/create" component={ParticipantProjectCreate}></Route>
+            <Route path="/list">
+              <Route path="/" component={ParticipantProjectList}></Route>
+              <Route
+                path="/details"
+                component={ParticipantProjectListDetails}
+              ></Route>
+            </Route>
+          </Route> */}
+          <Route path="/account" component={ExaminerAccount}></Route>
+        </Route>
+
+        {/* Support */}
+        <Route path="/support" component={Support}></Route>
       </Route>
+
       {/* 404 route */}
       <Route path="*" component={NoMatch} />
     </Router>

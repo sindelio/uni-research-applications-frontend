@@ -1,10 +1,11 @@
-import env from '../../../client-envs/current.js';
-import { onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../helpers/check-session-jwt.js';
 import exists from '../../../helpers/exists.js';
-import toBase64 from '../../../helpers/to-base-64.js';
+import areas from '../../../helpers/areas.js';
+import maskPhone from '../../../helpers/mask-phone.js';
 import request from '../../../helpers/request.js';
+import errorMessage from '../../../helpers/error-message.js';
 import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
 import P from '../../../components/app/paragraph.jsx';
@@ -12,45 +13,63 @@ import InputText from '../../../components/app/input-text.jsx';
 import InputPassword from '../../../components/app/input-password.jsx';
 import Button from '../../../components/app/button.jsx';
 import Divider from '../../../components/app/divider.jsx';
-import errorMessage from '../../../helpers/error-message.js';
+
+const [getAccount, setAccount] = createSignal(null);
 
 async function readAccount() {
-  const responseJson = await request('GET', '/participant', null, true);
+  const responseJson = await request('GET', '/examiner', null, true);
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/participant/dashboard';
+    window.location.href = '/app/examiner/dashboard';
     return null;
   }
   const account = responseJson.data;
-  return account;
+  setAccount(account);
 }
 
-async function addAccountInfo(account) {
+async function addAccountInfo() {
+  const account = getAccount();
+
+  // Name
   const nameEl = document.getElementById('name');
   nameEl.textContent = `Nome: ${account.name}`;
+
+  // Institution
   const institutionEl = document.getElementById('institution');
   institutionEl.textContent = `Instituição: ${account.institution}`;
+
+  // Email
   const emailEl = document.getElementById('email');
   emailEl.textContent = `Email: ${account.email}`;
+
+  // Phone
   const phoneEl = document.getElementById('phone');
   phoneEl.textContent = `Phone: ${account.phone}`;
-  const receiptEl = document.getElementById('receipt');
-  receiptEl.innerHTML = `Comprovante de inscrição: <span class="text-red-500">Pendente</span>`;
-  if (account.receiptFile.isSubmitted) {
-    receiptEl.innerHTML = `Comprovante de inscrição: <span class="text-green-500">Enviado</span>`;
-  }
-}
 
-async function maskPhone(phone) {
-  return phone
-    .replace(/\D/g, '') // Remove non-digits
-    .replace(/(\d{2})(\d)/, '($1) $2') // Add area code parens
-    .replace(/(\d{5})(\d)/, '$1-$2') // Add hyphen for 9 digits
-    .replace(/(-\d{4})\d+?$/, '$1'); // Limit to 11 digits total
+  // Number of projects
+  const numProjectsEl = document.getElementById('numProjects');
+  numProjectsEl.textContent = `Número de projetos avaliados: ${account.numProjects}`;
+
+  // Max projects
+  const maxProjectsEl = document.getElementById('maxProjects');
+  maxProjectsEl.textContent = `Máximo de projetos: ${account.maxProjects}`;
+
+  // Areas
+  const areasEl = document.getElementById('areas');
+  const accountAreas = account.areas || [];
+  areasEl.textContent = `Áreas de atuação: ${accountAreas.length > 0 ? accountAreas.join(', ') : 'Nenhuma selecionada'}`;
+
+  // Sincronizar checkboxes do formulário com os dados salvos
+  areas.forEach((area, index) => {
+    const checkboxEl = document.getElementById(`area_${index}`);
+    if (checkboxEl) {
+      checkboxEl.checked = accountAreas.includes(area);
+    }
+  });
 }
 
 async function addInputListeners() {
@@ -103,10 +122,10 @@ async function addDetailsSubmitListener() {
     detailsFormEl.classList.add('hidden');
     const detailsUpdateEl = document.querySelector('#updateDetails');
     const passwordUpdateEl = document.querySelector('#updatePassword');
-    const sendReceiptEl = document.querySelector('#sendReceipt');
+    const areasUpdateEl = document.querySelector('#updateAreas');
     detailsUpdateEl.classList.remove('hidden');
     passwordUpdateEl.classList.remove('hidden');
-    sendReceiptEl.classList.remove('hidden');
+    areasUpdateEl.classList.remove('hidden');
     Swal.fire({
       title: 'Sucesso',
       text: 'Dados atualizados!',
@@ -120,15 +139,18 @@ async function addDetailsUpdateListener() {
   updateDetailsEl.addEventListener('click', () => {
     const detailsFormEl = document.querySelector('#detailsForm');
     const updatePasswordEl = document.querySelector('#updatePassword');
-    const sendReceiptEl = document.querySelector('#sendReceipt');
+    const updateAreasEl = document.querySelector('#updateAreas');
     updateDetailsEl.classList.add('hidden');
     detailsFormEl.classList.remove('hidden');
     updatePasswordEl.classList.add('hidden');
-    sendReceiptEl.classList.add('hidden');
+    updateAreasEl.classList.add('hidden');
   });
 }
 
-async function addPasswordSubmitListener(storedPassword) {
+async function addPasswordSubmitListener() {
+  const account = getAccount();
+  const storedPassword = account.password;
+
   const passwordSubmitEl = document.getElementById('submitPassword');
   passwordSubmitEl.addEventListener('click', async (event) => {
     Swal.fire({ title: 'Please wait ...' });
@@ -194,16 +216,15 @@ async function addPasswordSubmitListener(storedPassword) {
     passwordFormEl.classList.add('hidden');
     const passwordUpdateEl = document.querySelector('#updatePassword');
     const detailsUpdateEl = document.querySelector('#updateDetails');
-    const sendReceiptEl = document.querySelector('#sendReceipt');
+    const areasUpdateEl = document.querySelector('#updateAreas');
     passwordUpdateEl.classList.remove('hidden');
     detailsUpdateEl.classList.remove('hidden');
-    sendReceiptEl.classList.remove('hidden');
+    areasUpdateEl.classList.remove('hidden');
     await Swal.fire({
       title: 'Sucesso',
       text: 'Senha atualizada!',
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/participant/account';
   });
 }
 
@@ -212,88 +233,94 @@ async function addPasswordUpdateListener() {
   updatePasswordEl.addEventListener('click', () => {
     const passwordFormEl = document.querySelector('#passwordForm');
     const updateDetailsEl = document.querySelector('#updateDetails');
-    const sendReceiptEl = document.querySelector('#sendReceipt');
+    const updateAreasEl = document.querySelector('#updateAreas');
     updatePasswordEl.classList.add('hidden');
     passwordFormEl.classList.remove('hidden');
     updateDetailsEl.classList.add('hidden');
-    sendReceiptEl.classList.add('hidden');
+    updateAreasEl.classList.add('hidden');
   });
 }
 
-async function addReceiptSubmitListener() {
-  const receiptSubmitEl = document.getElementById('submitReceipt');
-  receiptSubmitEl.addEventListener('click', async (event) => {
-    event.preventDefault();
-    const receiptFileEl = document.getElementById('receiptFile');
-
-    // Check input
-    if (receiptFileEl.files.length === 0) {
-      await Swal.fire({
-        title: 'Oops',
-        text: 'Por favor, selecione um arquivo.',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-    Swal.fire({ title: 'Enviando arquivo...' });
-
-    // Get receipt file
-    const receiptFile = receiptFileEl.files[0];
-
-    // Convert the file to a Base64 string
-    const receiptFile64Encoded = await toBase64(receiptFile);
-
-    // Send request
-    const responseJson = await request(
-      'POST',
-      '/participant/upload-receipt',
-      { receiptFile64Encoded },
-      true,
-    );
-
-    // Process response
-    if (responseJson.error) {
-      await Swal.fire({
-        title: 'Oops',
-        text: 'Erro ao enviar o comprovante. Tente novamente.',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-    await Swal.fire({
-      title: 'Sucesso',
-      text: 'Comprovante enviado com sucesso!',
-      confirmButtonText: 'OK',
-    });
-    window.location.reload(); // Refresh to reset state
-  });
-}
-
-async function addReceiptUpdateListener() {
-  const sendReceiptEl = document.querySelector('#sendReceipt');
-  sendReceiptEl.addEventListener('click', () => {
-    const receiptFormEl = document.querySelector('#receiptForm');
+async function addAreasUpdateListener() {
+  const updateAreasEl = document.querySelector('#updateAreas');
+  updateAreasEl.addEventListener('click', () => {
+    const areasFormEl = document.querySelector('#areasForm');
     const updateDetailsEl = document.querySelector('#updateDetails');
     const updatePasswordEl = document.querySelector('#updatePassword');
-    sendReceiptEl.classList.add('hidden');
-    receiptFormEl.classList.remove('hidden');
+    updateAreasEl.classList.add('hidden');
+    areasFormEl.classList.remove('hidden');
     updateDetailsEl.classList.add('hidden');
     updatePasswordEl.classList.add('hidden');
   });
 }
 
-function ParticipantAccount() {
-  onMount(async () => {
-    await checkSessionJwt();
+async function addAreasSubmitListener() {
+  const areasSubmitEl = document.getElementById('submitAreas');
+  areasSubmitEl.addEventListener('click', async (event) => {
+    Swal.fire({ title: 'Um momento ...' });
+    event.preventDefault();
+
+    // Map checked checkboxes
+    const selectedAreas = [];
+    areas.forEach((area, index) => {
+      const checkboxEl = document.getElementById(`area_${index}`);
+      if (checkboxEl && checkboxEl.checked) {
+        selectedAreas.push(area);
+      }
+    });
+
+    const responseJson = await request(
+      'PATCH',
+      '/examiner',
+      {
+        areas: selectedAreas,
+      },
+      true,
+    );
+
+    if (responseJson.error) {
+      await Swal.fire({
+        title: 'Oops',
+        text: errorMessage,
+        confirmButtonText: 'OK',
+      });
+      window.location.href = '/app/examiner/dashboard';
+      return null;
+    }
+
     const account = await readAccount();
     await addAccountInfo(account);
+
+    const areasFormEl = document.querySelector('#areasForm');
+    areasFormEl.classList.add('hidden');
+
+    const detailsUpdateEl = document.querySelector('#updateDetails');
+    const passwordUpdateEl = document.querySelector('#updatePassword');
+    const areasUpdateEl = document.querySelector('#updateAreas');
+    detailsUpdateEl.classList.remove('hidden');
+    passwordUpdateEl.classList.remove('hidden');
+    areasUpdateEl.classList.remove('hidden');
+
+    await Swal.fire({
+      title: 'Sucesso',
+      text: 'Áreas de atuação atualizadas!',
+      confirmButtonText: 'OK',
+    });
+  });
+}
+
+function ExaminerAccount() {
+  onMount(async () => {
+    await checkSessionJwt();
+    await readAccount();
+    await addAccountInfo();
     await addInputListeners();
     await addDetailsSubmitListener();
     await addDetailsUpdateListener();
-    await addPasswordSubmitListener(account?.password);
+    await addPasswordSubmitListener();
     await addPasswordUpdateListener();
-    await addReceiptSubmitListener();
-    await addReceiptUpdateListener();
+    await addAreasUpdateListener();
+    await addAreasSubmitListener();
   });
   return (
     <div class="flex flex-row text-lg">
@@ -305,7 +332,9 @@ function ParticipantAccount() {
         <P id="institution">Instituição:</P>
         <P id="email">Email:</P>
         <P id="phone">Fone:</P>
-        <P id="receipt">Comprovante de inscrição:</P>
+        <P id="numProjects">Número de projetos avaliados:</P>
+        <P id="maxProjects">Máximo de projetos:</P>
+        <P id="areas">Áreas de atuação:</P>
 
         {/* Update details */}
         <Button id="updateDetails" type="button">
@@ -365,26 +394,26 @@ function ParticipantAccount() {
           </Button>
         </form>
 
-        {/* Send receipt */}
-        <Button id="sendReceipt" type="button">
-          Enviar comprovante de inscrição
+        {/* Update areas */}
+        <Button id="updateAreas" type="button">
+          Atualizar áreas
         </Button>
-        <form id="receiptForm" class="hidden" enctype="multipart/form-data">
+        <form id="areasForm" class="hidden">
           <Divider inputClass="w-full bg-purple-500 border-purple-500"></Divider>
-          <div class="my-4">
-            <label class="block mb-2 text-sm font-medium text-gray-900">
-              Comprovante de pagamento (PDF ou imagem) *
-            </label>
-            <input
-              type="file"
-              id="receiptFile"
-              name="receiptFile"
-              accept="application/pdf,image/*"
-              class="block w-full px-2 py-1 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-            />
+          <div class="my-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {areas.map((area, index) => (
+              <label class="flex items-center space-x-3 cursor-pointer text-base text-gray-700 hover:text-gray-900">
+                <input
+                  type="checkbox"
+                  id={`area_${index}`}
+                  class="w-5 h-5 accent-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                />
+                <span>{area}</span>
+              </label>
+            ))}
           </div>
-          <Button id="submitReceipt" type="button">
-            Enviar Arquivo
+          <Button id="submitAreas" type="button">
+            Salvar
           </Button>
         </form>
       </div>
@@ -392,4 +421,4 @@ function ParticipantAccount() {
   );
 }
 
-export default ParticipantAccount;
+export default ExaminerAccount;
