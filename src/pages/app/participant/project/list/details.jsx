@@ -16,7 +16,7 @@ async function readProject() {
   const id = urlParams.get('id');
   const responseJson = await request(
     'GET',
-    `/participant/project?id=${id}`,
+    `/participant/project?projectId=${id}`,
     null,
     true,
   );
@@ -51,7 +51,7 @@ async function addProjectInfo(project) {
   document.getElementById('title').textContent = project?.title || '-';
 
   // Authors (Array of Objects)
-  const authorsContainer = document.getElementById('authors-list');
+  const authorsContainer = document.getElementById('authorsList');
   authorsContainer.innerHTML = ''; // Clear
   project.authors.forEach((author) => {
     const span = document.createElement('span');
@@ -82,7 +82,12 @@ async function addProjectInfo(project) {
 
   // Summary
   document.getElementById('summary').textContent = project?.summary || '-';
-  document.getElementById('type').textContent = project?.type || '-';
+
+  // Project type
+  document.getElementById('projectType').textContent =
+    project?.projectType || '-';
+
+  // Created at
   document.getElementById('createdAt').textContent =
     project?.createdAt?.readableDate || '-';
 
@@ -174,7 +179,7 @@ function ParticipantProjectListDetails() {
               <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Tipo de Projeto
               </label>
-              <p id="type" class="mt-1 font-medium"></p>
+              <p id="projectType" class="mt-1 font-medium"></p>
             </section>
           </div>
 
@@ -185,7 +190,7 @@ function ParticipantProjectListDetails() {
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
               Equipe de Autores
             </label>
-            <div id="authors-list" class="mt-2 flex flex-wrap gap-2"></div>
+            <div id="authorsList" class="mt-2 flex flex-wrap gap-2"></div>
           </section>
 
           {/* Areas */}

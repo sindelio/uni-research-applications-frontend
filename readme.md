@@ -1,9 +1,9 @@
 TODO:
 - Participant
-  - Dashboard
   - Project
     - Resubmission when rejected
-  - Support
+-Examiner
+  - Update maxProjects
 - Website:
   - Certificates page
   - Home button not scrolling top

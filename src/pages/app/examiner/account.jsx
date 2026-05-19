@@ -396,7 +396,7 @@ function ExaminerAccount() {
 
         {/* Update areas */}
         <Button id="updateAreas" type="button">
-          Atualizar áreas
+          Atualizar áreas de avaliação
         </Button>
         <form id="areasForm" class="hidden">
           <Divider inputClass="w-full bg-purple-500 border-purple-500"></Divider>

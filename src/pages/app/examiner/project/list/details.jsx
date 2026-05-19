@@ -1,11 +1,13 @@
 import env from '../../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
+import exists from '../../../../../helpers/exists.js';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
+import TextArea from '../../../../../components/app/text-area.jsx'; // Imported your custom TextArea component
 import errorMessage from '../../../../../helpers/error-message.js';
 
 const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
@@ -14,10 +16,10 @@ const [getProject, setProject] = createSignal(null);
 
 async function readProject() {
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id');
+  const projectId = urlParams.get('projectId');
   const responseJson = await request(
     'GET',
-    `/examiner/project?id=${id}`,
+    `/examiner/project?projectId=${projectId}`,
     null,
     true,
   );
@@ -34,7 +36,6 @@ async function readProject() {
   setProject(project);
 }
 
-// Helper to handle Buffer download
 function downloadBuffer(bufferObj, fileName) {
   const bytes = new Uint8Array(bufferObj.data.data);
   const blob = new Blob([bytes], { type: 'application/octet-stream' });
@@ -51,14 +52,13 @@ function downloadBuffer(bufferObj, fileName) {
 async function addProjectInfo() {
   // Get project
   const project = getProject();
-  console.log(project);
 
   // Title
   document.getElementById('title').textContent = project?.title || '-';
 
-  // Authors (Array of Objects)
+  // Authors
   const authorsEl = document.getElementById('authors-list');
-  authorsEl.innerHTML = ''; // Clear
+  authorsEl.innerHTML = '';
   project.authors.forEach((author) => {
     const span = document.createElement('span');
     span.className =
@@ -89,10 +89,11 @@ async function addProjectInfo() {
   // Summary
   document.getElementById('summary').textContent = project?.summary || '-';
 
-  // Type
-  document.getElementById('type').textContent = project?.type || '-';
+  // Project type
+  document.getElementById('projectType').textContent =
+    project?.projectType || '-';
 
-  // Creation date
+  // Created at
   document.getElementById('createdAt').textContent =
     project?.createdAt?.readableDate || '-';
 
@@ -110,7 +111,7 @@ async function addProjectInfo() {
     referencesContainer.textContent = '-';
   }
 
-  // Status Badge Logic
+  // Status
   const statusEl = document.getElementById('status');
   let statusText = 'Aguardando avaliador';
   let statusClass = 'bg-amber-100 text-amber-700 border-amber-200';
@@ -127,7 +128,7 @@ async function addProjectInfo() {
   statusEl.textContent = statusText;
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
-  // Download Banner Listener
+  // Download
   const downloadEl = document.getElementById('downloadBanner');
   if (project.bannerFile?.isSubmitted) {
     downloadEl.addEventListener('click', () => {
@@ -148,22 +149,102 @@ async function addBackListener() {
   });
 }
 
+async function addEvaluationListeners() {
+  // Get project
+  const project = getProject();
+
+  // Exit if project is not in review
+  if (project.status !== PROJECT_PENDING_REVIEW) {
+    return;
+  }
+
+  // Show evaluation button
+  const openEvaluationEl = document.getElementById('openEvaluation');
+  openEvaluationEl.classList.remove('hidden');
+
+  // Add open evaluation listener
+  const evaluationEl = document.getElementById('evaluation');
+  openEvaluationEl.addEventListener('click', () => {
+    evaluationEl.classList.toggle('hidden');
+    if (!evaluationEl.classList.contains('hidden')) {
+      evaluationEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Add submit listener
+  const submitEvaluationEl = document.getElementById('submitEvaluation');
+  submitEvaluationEl.addEventListener('click', async () => {
+    const projectId = project._id;
+    const payload = {
+      status: document.getElementById('evaluationStatus').value,
+      title: document.getElementById('evaluationTitle').checked,
+      authors: document.getElementById('evaluationAuthors').checked,
+      areas: document.getElementById('evaluationAreas').checked,
+      summary: document.getElementById('evaluationSummary').checked,
+      keywords: document.getElementById('evaluationKeywords').checked,
+      references: document.getElementById('evaluationReferences').checked,
+      projectType: document.getElementById('evaluationProjectType').checked, // Uses fixed 'projectType' key to avoid Mongoose conflict
+      banner: document.getElementById('evaluationBanner').checked,
+      commentaries: document.getElementById('evaluationCommentaries').value,
+      caveats: document.getElementById('evaluationCaveats').value,
+    };
+
+    // Temp submit disable
+    submitEvaluationEl.disabled = true;
+
+    // Request
+    const responseJson = await request(
+      'POST',
+      `/examiner/evaluate-project?projectId=${projectId}`,
+      payload,
+      true,
+    );
+
+    // Submit reenable
+    submitEvaluationEl.disabled = false;
+
+    // Error message
+    if (responseJson.error !== null) {
+      await Swal.fire({
+        title: 'Oops',
+        text: responseJson.error.message || 'Verifique os dados enviados.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    // Success message
+    await Swal.fire({
+      title: 'Sucesso!',
+      text: 'Avaliação submetida com sucesso.',
+      icon: 'success',
+      confirmButtonText: 'OK',
+    });
+
+    // Reload the page
+    window.location.reload();
+  });
+}
+
 function ExaminerProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
     await readProject();
     await addProjectInfo();
     await addBackListener();
+    await addEvaluationListeners();
   });
 
   return (
     <div class="flex flex-row min-h-screen bg-gray-50 text-gray-800">
       <Navbar />
-      <div class="ml-72 m-8 w-full max-w-4xl">
+      <div class="ml-72 m-8 w-full max-w-4xl space-y-6">
         <div class="flex justify-between items-center mb-6">
           <Heading>Detalhes do Projeto</Heading>
         </div>
 
+        {/* Project View Card */}
         <div class="bg-white shadow-sm border border-gray-200 rounded-xl p-8 space-y-6">
           {/* Main Info */}
           <section>
@@ -182,7 +263,7 @@ function ExaminerProjectListDetails() {
               <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Tipo de Projeto
               </label>
-              <p id="type" class="mt-1 font-medium"></p>
+              <p id="projectType" class="mt-1 font-medium"></p>
             </section>
           </div>
 
@@ -245,7 +326,23 @@ function ExaminerProjectListDetails() {
               </p>
             </div>
 
-            <div class="flex flex-row items-center text-center gap-4">
+            <div class="flex flex-wrap items-center gap-4">
+              {/* Evaluate Trigger Button */}
+              <Button
+                id="openEvaluation"
+                inputClass="hidden bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Avaliar Projeto
+              </Button>
+
               {/* Download button */}
               <Button
                 id="downloadBanner"
@@ -286,6 +383,151 @@ function ExaminerProjectListDetails() {
                 Voltar
               </Button>
             </div>
+          </div>
+        </div>
+
+        {/* Evaluation */}
+        <div
+          id="evaluation"
+          class="hidden bg-white shadow-sm border border-gray-200 rounded-xl p-8 space-y-6"
+        >
+          <h2 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-3">
+            Formulário de Avaliação
+          </h2>
+
+          {/* Evaluation checkboxes */}
+          <div>
+            <p class="text-sm font-semibold text-gray-700 mb-3">
+              Marque os campos validados com sucesso:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationTitle"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">Título adequado</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationAuthors"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">Autores validados</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationAreas"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">
+                  Áreas do conhecimento adequadas
+                </span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationSummary"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">
+                  Resumo bem estruturado
+                </span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationKeywords"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">
+                  Palavras-chave coerentes
+                </span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationReferences"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">Referências coerentes</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationProjectType"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">
+                  Tipo de projeto adequado
+                </span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="evaluationBanner"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                  checked
+                />
+                <span class="text-sm text-gray-700">Banner adequado</span>
+              </label>
+            </div>
+          </div>
+
+          <hr class="border-gray-100" />
+
+          {/* Status Toggle */}
+          <div class="w-full max-w-xs">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Decisão Final
+            </label>
+            <select
+              id="evaluationStatus"
+              class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 font-medium focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+            >
+              <option value="Approved" class="text-green-600 font-medium">
+                Aprovado (Approved)
+              </option>
+              <option value="Rejected" class="text-red-600 font-medium">
+                Reprovado (Rejected)
+              </option>
+            </select>
+          </div>
+
+          {/* Text Areas */}
+          <div class="space-y-1">
+            <TextArea
+              id="evaluationCommentaries"
+              label="Comentários Adicionais"
+              placeholder="Escreva pontos fortes, elogios e observações gerais..."
+              inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
+            />
+            <TextArea
+              id="evaluationCaveats"
+              label="Ressalvas / Modificações Obrigatórias"
+              placeholder="Descreva correções urgentes e pontos a ajustar caso reprovado..."
+              inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
+            />
+          </div>
+
+          {/* Submit evaluation */}
+          <div class="pt-4 border-t border-gray-100 flex justify-end">
+            <Button
+              id="submitEvaluation"
+              inputClass="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"
+            >
+              Submeter Avaliação
+            </Button>
           </div>
         </div>
       </div>

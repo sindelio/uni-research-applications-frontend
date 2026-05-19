@@ -98,7 +98,7 @@ async function addListInfo() {
 
     // Add click listener
     el.addEventListener('click', async () => {
-      window.location.href = `/app/examiner/project/list/details?id=${item._id}`;
+      window.location.href = `/app/examiner/project/list/details?projectId=${item._id}`;
     });
 
     // Append element

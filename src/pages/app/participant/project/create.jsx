@@ -262,7 +262,7 @@ async function addSubmitListener() {
     });
 
     // Type
-    const type = formData.get('projectType');
+    const projectType = formData.get('projectType');
 
     // Banner file
     const bannerEl = document.getElementById('bannerFile');
@@ -340,7 +340,7 @@ async function addSubmitListener() {
         keywords,
         summary,
         references,
-        type,
+        projectType,
         bannerFile64Encoded, // This is now a long string
       },
       true,
