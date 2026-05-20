@@ -1,4 +1,4 @@
-import { onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../helpers/check-session-jwt.js';
 import exists from '../../../../helpers/exists.js';
@@ -11,6 +11,9 @@ import Button from '../../../../components/app/button.jsx';
 import Divider from '../../../../components/app/divider.jsx';
 import TextArea from '../../../../components/app/text-area.jsx';
 import errorMessage from '../../../../helpers/error-message.js';
+
+const [getAccount, setAccount] = createSignal(null);
+const [getProject, setProject] = createSignal(null);
 
 const MAX_AREAS = 2;
 let authorIndex = 1;
@@ -29,11 +32,15 @@ async function readAccount() {
     return null;
   }
   const account = responseJson.data;
-  return account;
+  setAccount(account);
 }
 
-async function checkReceiptSubmission(account) {
-  const isSubmitted = account?.receiptFile?.isSubmitted;
+async function checkReceiptSubmission() {
+  // Get account
+  const account = getAccount();
+
+  // Check receipt
+  const isSubmitted = account.receiptFile.isSubmitted;
   if (!isSubmitted) {
     await Swal.fire({
       title: 'Oops',
@@ -44,13 +51,49 @@ async function checkReceiptSubmission(account) {
   }
 }
 
-async function addAccountInfo(account) {
-  const firstAuthorEl = document.getElementById('author0');
+async function populateProjectInfo() {
+  // Get projectId if present
+  const urlQueryParams = new URLSearchParams(window.location.search);
+  const projectId = urlQueryParams.get('projectId');
 
-  // We use dataset to store the values for easy retrieval later
-  firstAuthorEl.dataset.name = account.name;
-  firstAuthorEl.dataset.institution = account.institution || '';
-  firstAuthorEl.textContent = `${account.name} (${account.institution})`;
+  // Check if project exists
+  if (exists(projectId)) {
+    const responseJson = await request(
+      'GET',
+      `/participant/project?projectId=${projectId}`,
+      null,
+      true,
+    );
+    if (responseJson.error !== null) {
+      await Swal.fire({
+        title: 'Oops',
+        text: errorMessage,
+        confirmButtonText: 'OK',
+      });
+      window.location.href = '/app/participant/dashboard';
+      return null;
+    }
+    const project = responseJson.data;
+    setProject(project);
+
+    const titleEl = document.getElementById('title');
+    titleEl.value = project.title;
+
+    // TODO: AKIIIIIIIIIIIIIIIIIIIIi
+  }
+  // Else populate only the first author
+  else {
+    // Get account
+    const account = getAccount();
+
+    // Get first author element
+    const firstAuthorEl = document.getElementById('author0');
+
+    // We use dataset to store the values for easy retrieval later
+    firstAuthorEl.dataset.name = account.name;
+    firstAuthorEl.dataset.institution = account.institution || '';
+    firstAuthorEl.textContent = `${account.name} (${account.institution})`;
+  }
 }
 
 async function addRemoveElementListener(elementId) {
@@ -368,9 +411,9 @@ async function addSubmitListener() {
 function ParticipantProjectCreate() {
   onMount(async () => {
     await checkSessionJwt();
-    const account = await readAccount();
-    await checkReceiptSubmission(account);
-    await addAccountInfo(account);
+    await readAccount();
+    await checkReceiptSubmission();
+    await populateProjectInfo();
     await addRemoveElementListener('author0');
     await addNewAuthorListener();
     await addMaxAreasListeners();
@@ -382,7 +425,7 @@ function ParticipantProjectCreate() {
     <div class="flex flex-row text-lg">
       <Navbar></Navbar>
       <div class="ml-72 m-8">
-        <Heading>Novo Projeto</Heading>
+        <Heading id="heading">Novo Projeto</Heading>
         <form id="detailsForm" class="">
           <Divider inputClass="w-full bg-purple-500 border-purple-500"></Divider>
 
@@ -567,7 +610,7 @@ function ParticipantProjectCreate() {
 
           {/* Submit */}
           <Button id="submit" type="button">
-            Submeter para aprovação
+            Submeter para avaliação
           </Button>
         </form>
       </div>

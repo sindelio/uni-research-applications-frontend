@@ -1,6 +1,7 @@
 TODO:
 - Participant
   - Project
+    - View evaluation when available
     - Resubmission when rejected
 -Examiner
   - Update maxProjects

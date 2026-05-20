@@ -1,8 +1,8 @@
 import env from '../../../../../client-envs/current.js';
-import { onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
-import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
@@ -11,12 +11,14 @@ import errorMessage from '../../../../../helpers/error-message.js';
 
 const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
 
+const [getProject, setProject] = createSignal(null);
+
 async function readProject() {
   const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get('id');
+  const projectId = urlParams.get('projectId');
   const responseJson = await request(
     'GET',
-    `/participant/project?projectId=${id}`,
+    `/participant/project?projectId=${projectId}`,
     null,
     true,
   );
@@ -29,7 +31,8 @@ async function readProject() {
     window.location.href = '/app/participant/dashboard';
     return null;
   }
-  return responseJson.data;
+  const project = responseJson.data;
+  setProject(project);
 }
 
 // Helper to handle Buffer download
@@ -46,7 +49,10 @@ function downloadBuffer(bufferObj, fileName) {
   window.URL.revokeObjectURL(url);
 }
 
-async function addProjectInfo(project) {
+async function addProjectInfo() {
+  // get project
+  const project = getProject();
+
   // Title
   document.getElementById('title').textContent = project?.title || '-';
 
@@ -136,6 +142,17 @@ async function addProjectInfo(project) {
   }
 }
 
+async function addResubmitListener() {
+  // Get project
+  const project = getProject();
+
+  // Add listener
+  const resubmitEl = document.getElementById('resubmit');
+  resubmitEl.addEventListener('click', () => {
+    window.location.href = `/app/participant/project/create?projectId=${project._id}`;
+  });
+}
+
 async function addBackListener() {
   const backButtonEl = document.getElementById('back');
   backButtonEl.addEventListener('click', () => {
@@ -146,10 +163,9 @@ async function addBackListener() {
 function ParticipantProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
-    const project = await readProject();
-    if (exists(project)) {
-      await addProjectInfo(project);
-    }
+    await readProject();
+    await addProjectInfo();
+    await addResubmitListener();
     await addBackListener();
   });
 
@@ -261,6 +277,25 @@ function ParticipantProjectListDetails() {
                   />
                 </svg>
                 Baixar Banner
+              </Button>
+
+              <Button
+                id="resubmit"
+                inputClass="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Editar e ressubmeter
               </Button>
 
               {/* Back button */}

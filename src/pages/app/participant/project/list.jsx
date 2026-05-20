@@ -65,7 +65,7 @@ async function addListInfo(itemsInPage) {
     const plus = `<div class="text-center text-purple-500 text-xl">+</div>`;
     el.innerHTML = `${itemInfo}${plus}`;
     el.addEventListener('click', async () => {
-      window.location.href = `/app/participant/project/list/details?id=${item._id}`;
+      window.location.href = `/app/participant/project/list/details?projectId=${item._id}`;
     });
     listEl.appendChild(el);
   });
