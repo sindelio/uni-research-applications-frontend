@@ -76,10 +76,111 @@ async function populateProjectInfo() {
     const project = responseJson.data;
     setProject(project);
 
+    // Title
     const titleEl = document.getElementById('title');
     titleEl.value = project.title;
+    titleEl.disabled = true;
+    // Replicates the style in InputText component
+    titleEl.className =
+      'mt-2 mb-6 px-4 py-1 bg-transparent-100 text-gray-400 border border-gray-300 rounded-lg hover:cursor-default';
 
-    // TODO: AKIIIIIIIIIIIIIIIIIIIIi
+    // Authors
+    if (exists(project.authors)) {
+      for (let i = 0; i < project.authors.length; i++) {
+        const author = project.authors[i];
+
+        if (i === 0) {
+          // Update the pre-rendered first author button
+          const firstAuthorEl = document.getElementById('author0');
+          firstAuthorEl.dataset.name = author.name;
+          firstAuthorEl.dataset.institution = author.institution || '';
+          firstAuthorEl.textContent = `${author.name} (${author.institution})`;
+        } else {
+          // Programmatically build additional authors
+          const newAuthorId = `author${authorIndex}`;
+          const newAuthorEl = document.createElement('button');
+          newAuthorEl.id = newAuthorId;
+          newAuthorEl.type = 'button';
+          newAuthorEl.classList =
+            'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+          newAuthorEl.textContent = `${author.name} (${author.institution})`;
+
+          newAuthorEl.dataset.name = author.name;
+          newAuthorEl.dataset.institution = author.institution;
+
+          document.getElementById('authors').appendChild(newAuthorEl);
+          await addRemoveElementListener(newAuthorId);
+          authorIndex++;
+        }
+      }
+    }
+
+    // Areas (Checkboxes)
+    if (project.areas) {
+      const areaCheckboxEls = document.querySelectorAll(
+        'input[type="checkbox"]',
+      );
+      areaCheckboxEls.forEach((checkbox) => {
+        const areaName = checkbox.getAttribute('area');
+        if (project.areas.includes(areaName)) {
+          checkbox.checked = true;
+        }
+      });
+    }
+
+    // Populate Keywords
+    if (project.keywords) {
+      for (const keyword of project.keywords) {
+        const newKeywordId = `keyword${keywordIndex}`;
+        const newKeywordEl = document.createElement('button');
+        newKeywordEl.id = newKeywordId;
+        newKeywordEl.type = 'button';
+        newKeywordEl.classList =
+          'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+        newKeywordEl.textContent = keyword;
+
+        newKeywordEl.dataset.keyword = keyword;
+
+        document.getElementById('keywords').appendChild(newKeywordEl);
+        await addRemoveElementListener(newKeywordId);
+        keywordIndex++;
+      }
+    }
+
+    // Summary
+    const summaryEl = document.getElementById('summary');
+    if (summaryEl) {
+      summaryEl.value = project.summary;
+    }
+
+    // References
+    if (project.references) {
+      for (const reference of project.references) {
+        const newReferenceId = `reference${referenceIndex}`;
+        const newReferenceEl = document.createElement('button');
+        newReferenceEl.id = newReferenceId;
+        newReferenceEl.type = 'button';
+        newReferenceEl.classList =
+          'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+        newReferenceEl.textContent = reference;
+
+        newReferenceEl.dataset.reference = reference;
+
+        document.getElementById('references').appendChild(newReferenceEl);
+        await addRemoveElementListener(newReferenceId);
+        referenceIndex++;
+      }
+    }
+
+    // Project Type (Radio Buttons)
+    if (project.projectType) {
+      const radioEl = document.querySelector(
+        `input[name="projectType"][value="${project.projectType}"]`,
+      );
+      if (exists(radioEl)) {
+        radioEl.checked = true;
+      }
+    }
   }
   // Else populate only the first author
   else {
@@ -372,22 +473,30 @@ async function addSubmitListener() {
     // Convert the file to a Base64 string
     const bannerFile64Encoded = await toBase64(bannerFile);
 
+    // Request params
+    let httpMethod = 'POST';
+    let url = '/participant/project';
+    const payload = {
+      title,
+      authors,
+      areas,
+      keywords,
+      summary,
+      references,
+      projectType,
+      bannerFile64Encoded, // This is now a long string
+    };
+
+    // If resubmitting
+    const project = getProject();
+    if (exists(project)) {
+      httpMethod = 'PATCH';
+      delete payload.title;
+      url = `/participant/project?projectId=${project._id}`;
+    }
+
     // Send request
-    const responseJson = await request(
-      'POST',
-      '/participant/project',
-      {
-        title,
-        authors,
-        areas,
-        keywords,
-        summary,
-        references,
-        projectType,
-        bannerFile64Encoded, // This is now a long string
-      },
-      true,
-    );
+    const responseJson = await request(httpMethod, url, payload, true);
 
     // Process response
     if (responseJson.error) {
@@ -434,7 +543,7 @@ function ParticipantProjectCreate() {
             id="title"
             label="Título *"
             size={24}
-            placeholder=""
+            placeholder="Título do projeto .."
           ></InputText>
 
           {/* Authors */}
@@ -444,14 +553,14 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="authorName"
-                placeholder="Nome do autor"
+                placeholder="Nome do autor .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
               <input
                 type="text"
                 id="authorInstitution"
-                placeholder="Instituição do autor"
+                placeholder="Instituição do autor .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
@@ -530,7 +639,7 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="keyword"
-                placeholder="Palavra-chave"
+                placeholder="Palavra-chave .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
@@ -558,7 +667,7 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="reference"
-                placeholder="Referência"
+                placeholder="Referência .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />

@@ -1,8 +1,8 @@
 import env from '../../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
-import { useNavigate } from '@solidjs/router';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
+import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
@@ -50,7 +50,7 @@ function downloadBuffer(bufferObj, fileName) {
 }
 
 async function addProjectInfo() {
-  // get project
+  // Get project
   const project = getProject();
 
   // Title
@@ -127,18 +127,91 @@ async function addProjectInfo() {
   }
   statusEl.textContent = statusText;
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
+}
+
+async function addEvaluationInfo() {
+  // Get project
+  const project = getProject();
+
+  const viewEvaluationBtn = document.getElementById('viewEvaluation');
+  const evaluationModal = document.getElementById('evaluationModal');
+  const closeEvaluationModalBtn = document.getElementById(
+    'closeEvaluationModal',
+  );
+
+  if (exists(project?.evaluation)) {
+    // Show the view evaluation button since an evaluation exists
+    viewEvaluationBtn.classList.remove('hidden');
+
+    const evaluation = project.evaluation;
+    const fields = [
+      'title',
+      'authors',
+      'areas',
+      'summary',
+      'keywords',
+      'references',
+      'projectType',
+      'banner',
+    ];
+
+    // Populate checklist statuses
+    fields.forEach((field) => {
+      const elementId = `eval${field.charAt(0).toUpperCase() + field.slice(1)}`;
+      const el = document.getElementById(elementId);
+      if (el) {
+        if (evaluation[field] === true) {
+          el.textContent = 'Aprovado';
+          el.className = 'text-sm font-semibold text-green-600';
+        } else {
+          el.textContent = 'Reprovado';
+          el.className = 'text-sm font-semibold text-red-600';
+        }
+      }
+    });
+
+    // Populate commentaries and caveats text content
+    document.getElementById('evalCommentaries').textContent =
+      evaluation.commentaries || 'Nenhum comentário.';
+    document.getElementById('evalCaveats').textContent =
+      evaluation.caveats || 'Nenhuma ressalva.';
+
+    // Add click listeners to handle visibility toggle
+    viewEvaluationBtn.addEventListener('click', () => {
+      evaluationModal.classList.remove('hidden');
+    });
+
+    closeEvaluationModalBtn.addEventListener('click', () => {
+      evaluationModal.classList.add('hidden');
+    });
+
+    // Close modal if user clicks on the outer translucent background overlay
+    evaluationModal.addEventListener('click', (event) => {
+      if (event.target === evaluationModal) {
+        evaluationModal.classList.add('hidden');
+      }
+    });
+  } else {
+    // Hide the view evaluation button if no review data exists
+    viewEvaluationBtn.classList.add('hidden');
+  }
+}
+
+async function addDownloadListener() {
+  // Get project
+  const project = getProject();
 
   // Download Banner Listener
-  const downloadBtn = document.getElementById('downloadBanner');
+  const downloadEl = document.getElementById('downloadBanner');
   if (project.bannerFile?.isSubmitted) {
-    downloadBtn.addEventListener('click', () => {
+    downloadEl.addEventListener('click', () => {
       downloadBuffer(
         project.bannerFile,
         `banner_${project.title.replace(/\s+/g, '_')}`,
       );
     });
   } else {
-    downloadBtn.classList.add('hidden');
+    downloadEl.classList.add('hidden');
   }
 }
 
@@ -146,11 +219,14 @@ async function addResubmitListener() {
   // Get project
   const project = getProject();
 
-  // Add listener
-  const resubmitEl = document.getElementById('resubmit');
-  resubmitEl.addEventListener('click', () => {
-    window.location.href = `/app/participant/project/create?projectId=${project._id}`;
-  });
+  if (project.status == PROJECT_REJECTED) {
+    // Add listener
+    const resubmitEl = document.getElementById('resubmit');
+    resubmitEl.classList.remove('hidden');
+    resubmitEl.addEventListener('click', () => {
+      window.location.href = `/app/participant/project/create?projectId=${project._id}`;
+    });
+  }
 }
 
 async function addBackListener() {
@@ -165,6 +241,8 @@ function ParticipantProjectListDetails() {
     await checkSessionJwt();
     await readProject();
     await addProjectInfo();
+    await addDownloadListener();
+    await addEvaluationInfo();
     await addResubmitListener();
     await addBackListener();
   });
@@ -279,9 +357,10 @@ function ParticipantProjectListDetails() {
                 Baixar Banner
               </Button>
 
+              {/* Evaluation View Action & Modal Window (Placed Exactly Here) */}
               <Button
-                id="resubmit"
-                inputClass="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 flex items-center gap-2"
+                id="viewEvaluation"
+                inputClass="hidden bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -291,7 +370,110 @@ function ParticipantProjectListDetails() {
                 >
                   <path
                     fill-rule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                Ver Avaliação
+              </Button>
+
+              <div
+                id="evaluationModal"
+                class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4"
+              >
+                <div class="bg-white rounded-xl p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto space-y-5 shadow-2xl border border-gray-100 text-left">
+                  <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 class="text-lg font-bold text-gray-900">
+                      Resultado detalhado da Avaliação
+                    </h3>
+                    <button
+                      id="closeEvaluationModal"
+                      type="button"
+                      class="text-gray-400 hover:text-gray-600 font-bold text-2xl transition-colors"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  {/* Checklist Results Grid */}
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">Título:</span>
+                      <span id="evalTitle"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">Autores:</span>
+                      <span id="evalAuthors"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">Áreas:</span>
+                      <span id="evalAreas"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">Resumo:</span>
+                      <span id="evalSummary"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">
+                        Palavras-chave:
+                      </span>
+                      <span id="evalKeywords"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">
+                        Referências:
+                      </span>
+                      <span id="evalReferences"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">
+                        Tipo de Projeto:
+                      </span>
+                      <span id="evalProjectType"></span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                      <span class="font-medium text-gray-600">Banner:</span>
+                      <span id="evalBanner"></span>
+                    </div>
+                  </div>
+
+                  {/* Text Comments Sections */}
+                  <div class="space-y-4 pt-2">
+                    <div>
+                      <label class="text-xs font-bold uppercase tracking-wider text-purple-600 block">
+                        Comentários
+                      </label>
+                      <p
+                        id="evalCommentaries"
+                        class="mt-1 text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap"
+                      ></p>
+                    </div>
+                    <div>
+                      <label class="text-xs font-bold uppercase tracking-wider text-amber-600 block">
+                        Ressalvas / Alterações Solicitadas
+                      </label>
+                      <p
+                        id="evalCaveats"
+                        class="mt-1 text-sm text-gray-700 bg-amber-50/50 p-3 rounded-lg border border-amber-100 whitespace-pre-wrap"
+                      ></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                id="resubmit"
+                inputClass="hidden bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.255.658 5.002 5.002 0 009.736 1.285H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.272z"
                     clip-rule="evenodd"
                   />
                 </svg>

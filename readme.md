@@ -1,8 +1,8 @@
 TODO:
 - Participant
-  - Project
-    - View evaluation when available
-    - Resubmission when rejected
+  - Patch project when resubmitting
+  - Check receipt format
+  - Refactor
 -Examiner
   - Update maxProjects
 - Website:

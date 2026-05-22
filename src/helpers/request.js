@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import exists from './exists.js';
 
 const {
-  LOCAL_STORAGE_KEY,
+  LOCAL_STORAGE_JWT,
   BACKEND_URL,
   SUPPORT_EMAIL,
 } = env;
@@ -20,7 +20,7 @@ async function request(method, path, data, isAuth) {
       options.body = JSON.stringify(data);
     }
     if (isAuth) {
-      const jwt = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const jwt = localStorage.getItem(LOCAL_STORAGE_JWT);
       options.headers.authorization = `Bearer ${jwt}`;
     }
     const url = `${BACKEND_URL}${path}`;
