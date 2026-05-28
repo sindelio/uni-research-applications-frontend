@@ -15,7 +15,7 @@ async function getQueryParams() {
   const email = urlQueryParams.get('email');
   const userType = urlQueryParams.get('userType');
   const token = urlQueryParams.get('token');
-  if (!exists(email) || !exists(userType) || !exists) {
+  if (!exists(email) || !exists(userType) || !exists(token)) {
     await Swal.fire({
       title: 'Oops',
       text: `Algo inesperado aconteceu. Busque suporte no endereço eletrônico "${SUPPORT_EMAIL}"`,

@@ -40,6 +40,7 @@
     "highlight.js": "^11.11.1",
     "jquery": "^4.0.0",
     "path": "^0.12.7",
+    "pdfjs-dist": "^5.7.284",
     "pm2": "^6.0.14",
     "serve-static": "^2.2.1",
     "solid-js": "^1.9.12",

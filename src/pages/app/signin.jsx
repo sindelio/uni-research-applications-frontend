@@ -60,6 +60,7 @@ function SignIn() {
               <Select id="userType" label="">
                 <option value="participant">Participante</option>
                 <option value="examiner">Avaliador</option>
+                <option value="admin">Admin</option>
               </Select>
               <InputText
                 id="email"

@@ -17,7 +17,7 @@ async function readStats() {
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/examiner/dashboard';
+    window.location.href = '/app/support';
     return null;
   }
   const stats = responseJson.data;
