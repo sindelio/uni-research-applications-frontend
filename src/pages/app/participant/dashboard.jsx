@@ -1,87 +1,125 @@
-import env from '../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../helpers/check-session-jwt.js';
 import request from '../../../helpers/request.js';
 import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
-import P from '../../../components/app/paragraph.jsx';
 import errorMessage from '../../../helpers/error-message.js';
 
-const {
-  PROJECT_WAITING_EXAMINER,
-  PROJECT_PENDING_REVIEW,
-  PROJECT_APPROVED,
-  PROJECT_REJECTED,
-} = env;
+const [getStats, setStats] = createSignal(null);
+const [getNumberOfProjects0, setNumberOfProjects0] = createSignal(null);
+const [getNumberOfProjects1, setNumberOfProjects1] = createSignal(null);
+const [getNumberOfProjects2, setNumberOfProjects2] = createSignal(null);
+const [getNumberOfProjects3, setNumberOfProjects3] = createSignal(null);
+const [getNumberOfProjects4, setNumberOfProjects4] = createSignal(null);
 
-const [getProjects, setProjects] = createSignal(null);
-
-async function readProjects() {
-  const responseJson = await request(
-    'GET',
-    '/participant/projects',
-    null,
-    true,
-  );
+async function readStats() {
+  const responseJson = await request('GET', '/participant/stats', null, true);
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/participant/dashboard';
+    window.location.href = '/app/support';
     return null;
   }
-  const projects = responseJson.data;
-  setProjects(projects);
-}
-
-async function addProjectsOnStatusCount(status, elementId) {
-  const projects = getProjects();
-  const projectsOnStatus = projects.filter((project) => {
-    if (project.status === status) {
-      return true;
-    }
-    return false;
-  });
-  const projectsEl = document.getElementById(elementId);
-  projectsEl.textContent = projectsOnStatus.length;
-}
-
-async function addProjectsInfo() {
-  await addProjectsOnStatusCount(PROJECT_WAITING_EXAMINER, 'projects0');
-  await addProjectsOnStatusCount(PROJECT_PENDING_REVIEW, 'projects1');
-  await addProjectsOnStatusCount(PROJECT_APPROVED, 'projects2');
-  await addProjectsOnStatusCount(PROJECT_REJECTED, 'projects3');
+  const stats = responseJson.data;
+  setStats(stats);
+  setNumberOfProjects0(stats.projectsWaitingExaminer);
+  setNumberOfProjects1(stats.projectsPendingReview);
+  setNumberOfProjects2(stats.projectsPartiallyApproved);
+  setNumberOfProjects3(stats.projectsApproved);
+  setNumberOfProjects4(stats.projectsRejected);
 }
 
 function Dashboard() {
   onMount(async () => {
     await checkSessionJwt();
-    await readProjects();
-    await addProjectsInfo();
+    await readStats();
   });
+
   return (
-    <div class="flex flex-row text-lg">
+    <div class="flex flex-row text-lg min-h-screen bg-gray-50">
       <Navbar></Navbar>
-      <div class="ml-72 m-8">
+      <div class="ml-72 m-8 w-full mr-8">
         {/* Heading */}
         <Heading>Dashboard</Heading>
 
-        {/* Dashboard info */}
-        <P>
-          Projetos aguardando avaliador: <span id="projects0"></span>
-        </P>
-        <P>
-          Projetos aguardando avaliação: <span id="projects1"></span>
-        </P>
-        <P>
-          Projetos aprovados: <span id="projects2"></span>
-        </P>
-        <P>
-          Projetos reprovados: <span id="projects3"></span>
-        </P>
+        {/* Projects Section */}
+        <div class="mt-6 mb-3">
+          <h2 class="text-lg font-semibold text-gray-700">
+            Status dos Projetos
+          </h2>
+        </div>
+
+        {/* Since you now have 5 items, using xl:grid-cols-5 keeps them neatly in one row on large screens */}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {/* Card: Aguardando Avaliador */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-amber-400 border-t border-r border-b border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Aguardando Avaliador
+            </span>
+            <span
+              class="text-2xl font-extrabold text-amber-600 mt-1"
+              id="projects0"
+            >
+              {getNumberOfProjects0() ?? '-'}
+            </span>
+          </div>
+
+          {/* Card: Em Avaliação */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-blue-400 border-t border-r border-b border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Em Avaliação
+            </span>
+            <span
+              class="text-2xl font-extrabold text-blue-600 mt-1"
+              id="projects1"
+            >
+              {getNumberOfProjects1() ?? '-'}
+            </span>
+          </div>
+
+          {/* Card: Parcialmente Aprovados */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-teal-400 border-t border-r border-b border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Parc. Aprovados
+            </span>
+            <span
+              class="text-2xl font-extrabold text-teal-600 mt-1"
+              id="projects2"
+            >
+              {getNumberOfProjects2() ?? '-'}
+            </span>
+          </div>
+
+          {/* Card: Aprovados */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-green-400 border-t border-r border-b border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Aprovados
+            </span>
+            <span
+              class="text-2xl font-extrabold text-green-600 mt-1"
+              id="projects3"
+            >
+              {getNumberOfProjects3() ?? '-'}
+            </span>
+          </div>
+
+          {/* Card: Reprovados */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-red-500 border-t border-r border-b border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Reprovados
+            </span>
+            <span
+              class="text-2xl font-extrabold text-red-600 mt-1"
+              id="projects4"
+            >
+              {getNumberOfProjects4() ?? '-'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -52,6 +52,13 @@ function Support() {
             <li>Obtenção de uma cópia dos seus dados.</li>
           </ul>
         </P>
+        <br />
+
+        {/* Report problems */}
+        <P>
+          Esta plataforma está em fase de testes (alfa). Por gentileza reporte
+          problemas ou bugs caso encontre algum.
+        </P>
       </div>
     </div>
   );

@@ -7,12 +7,13 @@ import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
 
 const [getStats, setStats] = createSignal(null);
-const [getNumberOfExaminers, setNumberOfExaminers] = createSignal(null);
-const [getNumberOfParticipants, setNumberOfParticipants] = createSignal(null);
-const [getNumberOfProjects0, setNumberOfProjects0] = createSignal(null);
-const [getNumberOfProjects1, setNumberOfProjects1] = createSignal(null);
-const [getNumberOfProjects2, setNumberOfProjects2] = createSignal(null);
-const [getNumberOfProjects3, setNumberOfProjects3] = createSignal(null);
+const [getNumberOfAdmins, setNumberOfAdmins] = createSignal(0);
+const [getNumberOfExaminers, setNumberOfExaminers] = createSignal(0);
+const [getNumberOfParticipants, setNumberOfParticipants] = createSignal(0);
+const [getNumberOfProjects0, setNumberOfProjects0] = createSignal(0);
+const [getNumberOfProjects1, setNumberOfProjects1] = createSignal(0);
+const [getNumberOfProjects2, setNumberOfProjects2] = createSignal(0);
+const [getNumberOfProjects3, setNumberOfProjects3] = createSignal(0);
 
 async function readStats() {
   const responseJson = await request('GET', '/admin/stats', null, true);
@@ -27,12 +28,13 @@ async function readStats() {
   }
   const stats = responseJson.data;
   setStats(stats);
+  setNumberOfAdmins(stats.admins);
   setNumberOfExaminers(stats.examiners);
   setNumberOfParticipants(stats.participants);
   setNumberOfProjects0(stats.projectsWaitingExaminer);
   setNumberOfProjects1(stats.projectsPendingReview);
   setNumberOfProjects2(stats.projectsApproved);
-  setNumberOfProjects3(stats.projectsReproved);
+  setNumberOfProjects3(stats.projectsRejected);
 }
 
 function Dashboard() {
@@ -56,6 +58,19 @@ function Dashboard() {
           </h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          {/* Card: Avaliadores */}
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col max-w-xs">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Admins
+            </span>
+            <span
+              class="text-2xl font-extrabold text-indigo-600 mt-1"
+              id="admins"
+            >
+              {getNumberOfAdmins() ?? '-'}
+            </span>
+          </div>
+
           {/* Card: Avaliadores */}
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col max-w-xs">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">

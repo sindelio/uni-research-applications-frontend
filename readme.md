@@ -1,10 +1,18 @@
 TODO:
 - Participant
-  - Patch project when resubmitting
-  - Check receipt format
-  - Refactor
+  - Change navbar logo
+  - Change login image
+  - Check email UI
+  - Projects
+    - Only allow file upload for photo
+    - Limit number of projects to 2 conventional and 1 photo
 -Examiner
   - Update maxProjects
+  - Add project score (only for conventional, 1 to 5)
+  - Add third state for partial approv
+  - Add correction date?
+- Admin
+  - Show number of admins in dash
 - Website:
   - Certificates page
   - Home button not scrolling top

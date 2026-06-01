@@ -238,10 +238,22 @@ async function addPasswordUpdateListener() {
   });
 }
 
-async function addReceiptSubmitListener() {
+async function updateReceiptButtonVisibility() {
   // Get account
   const account = getAccount();
 
+  // Get receipt file submission status
+  const isSubmitted = account.receiptFile.isSubmitted;
+
+  // Check if submitted
+  if (isSubmitted) {
+    // Hide the submit button
+    const sendReceiptEl = document.querySelector('#sendReceipt');
+    sendReceiptEl.classList.add('hidden');
+  }
+}
+
+async function addReceiptSubmitListener() {
   // Add listener
   const receiptSubmitEl = document.getElementById('submitReceipt');
   receiptSubmitEl.addEventListener('click', async (event) => {
@@ -272,6 +284,7 @@ async function addReceiptSubmitListener() {
       },
     });
 
+    let nameOnFile = '';
     try {
       // Read file into an ArrayBuffer for processing locally
       const arrayBuffer = await receiptFile.arrayBuffer();
@@ -301,7 +314,24 @@ async function addReceiptSubmitListener() {
         return;
       }
 
+      // Extract participant name
+      // Capture the text between "ATESTAMOS QUE" and "EFETUOU"
+      const nameMatch = extractedText.match(/ATESTAMOS QUE\s+(.+?)\s+EFETUOU/);
+
+      if (nameMatch && nameMatch[1]) {
+        nameOnFile = nameMatch[1].trim();
+      } else {
+        await Swal.fire({
+          title: 'Documento Inválido',
+          text: 'Não foi possível extrair o nome do participante do comprovante.',
+          confirmButtonText: 'OK',
+        });
+        return;
+      }
+
       // // Identity Match Verification
+      // // Get account
+      // const account = getAccount();
       // const expectedName = account.name.toUpperCase();
       // if (!extractedText.includes(expectedName)) {
       //   await Swal.fire({
@@ -329,7 +359,7 @@ async function addReceiptSubmitListener() {
     const responseJson = await request(
       'POST',
       '/participant/upload-receipt',
-      { receiptFile64Encoded },
+      { receiptFile64Encoded, nameOnFile },
       true,
     );
 
@@ -337,7 +367,7 @@ async function addReceiptSubmitListener() {
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
-        text: 'Erro ao enviar o comprovante. Tente novamente.',
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       return;
@@ -377,6 +407,7 @@ function ParticipantAccount() {
     await addPasswordUpdateListener();
     await addReceiptSubmitListener();
     await addReceiptUpdateListener();
+    await updateReceiptButtonVisibility();
   });
   return (
     <div class="flex flex-row text-lg">
