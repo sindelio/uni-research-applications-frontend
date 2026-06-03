@@ -42,7 +42,7 @@ function downloadBuffer(bufferObj, fileName) {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = fileName || 'banner-projeto';
+  link.download = fileName || 'foto-projeto';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -152,7 +152,7 @@ async function addEvaluationInfo() {
       'keywords',
       'references',
       'projectType',
-      'banner',
+      'photo',
     ];
 
     // Populate checklist statuses
@@ -202,8 +202,8 @@ async function addDownloadListener() {
   const project = getProject();
 
   // Download Banner Listener
-  const downloadEl = document.getElementById('downloadBanner');
-  if (project.bannerFile?.isSubmitted) {
+  const downloadEl = document.getElementById('downloadPhoto');
+  if (project.photoFile?.isSubmitted) {
     downloadEl.addEventListener('click', () => {
       downloadBuffer(
         project.bannerFile,
@@ -339,7 +339,7 @@ function ParticipantProjectListDetails() {
             <div class="flex flex-row items-center text-center gap-4">
               {/* Download button */}
               <Button
-                id="downloadBanner"
+                id="downloadPhoto"
                 inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg

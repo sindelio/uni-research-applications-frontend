@@ -408,9 +408,9 @@ async function addSubmitListener() {
     // Type
     const projectType = formData.get('projectType');
 
-    // Banner file
-    const bannerEl = document.getElementById('bannerFile');
-    const bannerFile = bannerEl.files[0];
+    // Photo file
+    const photoEl = document.getElementById('photoFile');
+    const photoFile = photoEl.files[0];
 
     // Check input
     if (!exists(title) || title?.length < 3) {
@@ -461,17 +461,17 @@ async function addSubmitListener() {
       });
       return null;
     }
-    if (!exists(bannerFile)) {
+    if (!exists(photoFile)) {
       await Swal.fire({
         title: 'Oops',
-        text: 'Verifique o banner.',
+        text: 'Verifique a foto.',
         confirmButtonText: 'OK',
       });
       return null;
     }
 
     // Convert the file to a Base64 string
-    const bannerFile64Encoded = await toBase64(bannerFile);
+    const photoFile64Encoded = await toBase64(photoFile);
 
     // Request params
     let httpMethod = 'POST';
@@ -484,7 +484,7 @@ async function addSubmitListener() {
       summary,
       references,
       projectType,
-      bannerFile64Encoded, // This is now a long string
+      photoFile64Encoded, // This is now a long string
     };
 
     // If resubmitting
@@ -707,12 +707,12 @@ function ParticipantProjectCreate() {
           </div>
 
           <div class="mb-6">
-            <p class="mb-2">Banner do Projeto (PDF ou imagem) *</p>
+            <p class="mb-2">Foto do Projeto (imagem) *</p>
             <input
               type="file"
-              id="bannerFile"
-              name="bannerFile"
-              accept="application/pdf,image/*"
+              id="photoFile"
+              name="photoFile"
+              accept="application/image/*"
               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
             />
           </div>

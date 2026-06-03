@@ -47,8 +47,8 @@ function Navbar() {
         class="w-48 p-4 bg-purple-600 transition duration-300 ease-in-out"
       >
         <img
-          id="hat"
-          src="/images/icon.jpeg"
+          id="icon"
+          src="/images/enpcv.jpeg"
           alt="Icon"
           class="mx-auto my-4 w-16 h-16"
         />
