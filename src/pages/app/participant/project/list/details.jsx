@@ -9,7 +9,13 @@ import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
 import errorMessage from '../../../../../helpers/error-message.js';
 
-const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
+const {
+  PROJECT_TYPE_CONVENTIONAL,
+  PROJECT_TYPE_PHOTO,
+  PROJECT_PENDING_REVIEW,
+  PROJECT_APPROVED,
+  PROJECT_REJECTED,
+} = env;
 
 const [getProject, setProject] = createSignal(null);
 
@@ -200,18 +206,24 @@ async function addEvaluationInfo() {
 async function addDownloadListener() {
   // Get project
   const project = getProject();
+  const { projectType } = project;
 
   // Download Banner Listener
   const downloadEl = document.getElementById('downloadPhoto');
+
+  // Show download button is project is photografic
+  if (projectType === PROJECT_TYPE_PHOTO) {
+    downloadEl.classList.remove('hidden');
+  }
+
+  // Add click listener
   if (project.photoFile?.isSubmitted) {
     downloadEl.addEventListener('click', () => {
       downloadBuffer(
-        project.bannerFile,
-        `banner_${project.title.replace(/\s+/g, '_')}`,
+        project.photoFile,
+        `foto_${project.title.replace(/\s+/g, '_')}`,
       );
     });
-  } else {
-    downloadEl.classList.add('hidden');
   }
 }
 
@@ -232,7 +244,7 @@ async function addResubmitListener() {
 async function addBackListener() {
   const backButtonEl = document.getElementById('back');
   backButtonEl.addEventListener('click', () => {
-    window.history.back();
+    window.location.href = '/app/participant/project/list';
   });
 }
 
@@ -340,7 +352,7 @@ function ParticipantProjectListDetails() {
               {/* Download button */}
               <Button
                 id="downloadPhoto"
-                inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+                inputClass="hidden bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -354,7 +366,7 @@ function ParticipantProjectListDetails() {
                     clip-rule="evenodd"
                   />
                 </svg>
-                Baixar Banner
+                Baixar Foto
               </Button>
 
               {/* Evaluation View Action & Modal Window (Placed Exactly Here) */}

@@ -34,7 +34,7 @@ const distPath = distUrl.pathname;
 server.use(serveStatic(distPath));
 
 // Set unique route
-server.get('*', function (_req, res) {
+server.get('/{*splat}', function (_req, res) {
   res.sendFile(path.join(distPath, '/index.html'));
 });
 

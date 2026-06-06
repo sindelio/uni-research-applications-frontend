@@ -1,3 +1,4 @@
+import env from '../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../helpers/check-session-jwt.js';
@@ -11,6 +12,8 @@ import Button from '../../../../components/app/button.jsx';
 import Divider from '../../../../components/app/divider.jsx';
 import TextArea from '../../../../components/app/text-area.jsx';
 import errorMessage from '../../../../helpers/error-message.js';
+
+const { PROJECT_TYPE_CONVENTIONAL, PROJECT_TYPE_PHOTO } = env;
 
 const [getAccount, setAccount] = createSignal(null);
 const [getProject, setProject] = createSignal(null);
@@ -179,6 +182,14 @@ async function populateProjectInfo() {
       );
       if (exists(radioEl)) {
         radioEl.checked = true;
+
+        // Unhide the file upload input if the loaded project is Fotográfico
+        const projectPhotoEl = document.getElementById('projectPhoto');
+        if (project.projectType === 'Fotográfico') {
+          projectPhotoEl.classList.remove('hidden');
+        } else {
+          projectPhotoEl.classList.add('hidden');
+        }
       }
     }
   }
@@ -342,6 +353,21 @@ async function addNewReferenceListener() {
   });
 }
 
+async function addProjectTypeListener() {
+  const radioEls = document.querySelectorAll('input[name="projectType"]');
+  const projectPhotoEl = document.getElementById('projectPhoto');
+
+  radioEls.forEach((radio) => {
+    radio.addEventListener('change', (event) => {
+      if (event.target.value === PROJECT_TYPE_PHOTO) {
+        projectPhotoEl.classList.remove('hidden');
+      } else {
+        projectPhotoEl.classList.add('hidden');
+      }
+    });
+  });
+}
+
 async function addSubmitListener() {
   const detailsSubmitEl = document.getElementById('submit');
   detailsSubmitEl.addEventListener('click', async (event) => {
@@ -461,17 +487,26 @@ async function addSubmitListener() {
       });
       return null;
     }
-    if (!exists(photoFile)) {
-      await Swal.fire({
-        title: 'Oops',
-        text: 'Verifique a foto.',
-        confirmButtonText: 'OK',
-      });
-      return null;
+    // Only validate the photo if the project is Fotográfico
+    if (projectType === PROJECT_TYPE_PHOTO) {
+      if (!exists(photoFile)) {
+        await Swal.fire({
+          title: 'Oops',
+          text: 'Verifique a foto.',
+          confirmButtonText: 'OK',
+        });
+        return null;
+      }
     }
 
-    // Convert the file to a Base64 string
-    const photoFile64Encoded = await toBase64(photoFile);
+    let photoFile64Encoded = '';
+    if (projectType === PROJECT_TYPE_PHOTO) {
+      // Check if file exists
+      if (exists(photoFile)) {
+        // Convert the file to a Base64
+        photoFile64Encoded = await toBase64(photoFile);
+      }
+    }
 
     // Request params
     let httpMethod = 'POST';
@@ -528,6 +563,7 @@ function ParticipantProjectCreate() {
     await addMaxAreasListeners();
     await addNewKeywordListener();
     await addNewReferenceListener();
+    await addProjectTypeListener();
     await addSubmitListener();
   });
   return (
@@ -706,7 +742,7 @@ function ParticipantProjectCreate() {
             </div>
           </div>
 
-          <div class="mb-6">
+          <div id="projectPhoto" class="hidden mb-6">
             <p class="mb-2">Foto do Projeto (imagem) *</p>
             <input
               type="file"

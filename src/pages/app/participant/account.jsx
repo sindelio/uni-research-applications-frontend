@@ -419,6 +419,10 @@ function ParticipantAccount() {
         <P id="institution">Instituição:</P>
         <P id="email">Email:</P>
         <P id="phone">Fone:</P>
+        <P id="maxConventionalProjects">
+          Número máximo de projetos convencionais: 2
+        </P>
+        <P id="maxPhotoProjects">Número máximo de projetos fotográficos: 1</P>
         <P id="receipt">Comprovante de inscrição:</P>
 
         {/* Update details */}
