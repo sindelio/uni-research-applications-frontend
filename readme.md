@@ -1,3 +1,5 @@
+gcloud compute ssh root@instance-enpcv
+
 TODO:
 - Participant
   - Change navbar logo

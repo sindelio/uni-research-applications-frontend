@@ -9,6 +9,7 @@ export default defineConfig({
   ],
   server: {
     port: 5001,
+    allowedHosts: ['enpcv.org', 'www.enpcv.org']
   },
   build: {
     target: 'esnext',
