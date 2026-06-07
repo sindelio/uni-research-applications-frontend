@@ -8,9 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "pm2 start --interpreter ~/.bun/bin/bun server.js",
-    "restart": "pm2 restart server.js --update-env",
-    "stop": "pm2 stop server.js",
+    "start": "pm2 start bun --name frontend -- server.js",
+    "restart": "pm2 restart frontend --update-env",
+    "stop": "pm2 stop frontend",
     "checkUpdates": "bunx taze -w"
   },
   "private": true,
