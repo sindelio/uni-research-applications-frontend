@@ -12,13 +12,8 @@ import EmailConfirmation from './pages/app/email-confirmation.jsx';
 import PasswordRecovery from './pages/app/password-recovery.jsx';
 import PasswordReset from './pages/app/password-reset.jsx';
 import Support from './pages/app/support.jsx';
-
 import AdminDashboard from './pages/app/admin/dashboard.jsx';
 import AdminAccount from './pages/app/admin/account.jsx';
-// import ExaminerProject from './pages/app/examiner/project.jsx';
-// import ExaminerProjectList from './pages/app/examiner/project/list.jsx';
-// import ExaminerProjectListDetails from './pages/app/examiner/project/list/details.jsx';
-
 import ExaminerDashboard from './pages/app/examiner/dashboard.jsx';
 import ExaminerAccount from './pages/app/examiner/account.jsx';
 import ExaminerProject from './pages/app/examiner/project.jsx';

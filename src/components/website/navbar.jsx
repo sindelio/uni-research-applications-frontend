@@ -86,7 +86,7 @@ function Navbar() {
       <div class="flex justify-between items-center w-full md:w-auto">
         {/* BRAND ICON */}
         <A href="/" class="flex items-center md:pr-16">
-          <img src="/images/icon.jpeg" alt="ENPCV" class="w-28 h-20" />
+          <img src="/images/icon.png" alt="ENPCV" class="w-24 h-18 p-1" />
           <div
             style={{ 'font-family': 'Wizzta' }}
             class="hidden xs:block text-3xl pl-2 lg:text-4xl lg:pl-6"

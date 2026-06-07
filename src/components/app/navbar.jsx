@@ -48,7 +48,7 @@ function Navbar() {
       >
         <img
           id="icon"
-          src="/images/enpcv.jpeg"
+          src="/images/icon.png"
           alt="Icon"
           class="mx-auto my-4 w-16 h-16"
         />
