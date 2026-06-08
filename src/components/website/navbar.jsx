@@ -128,12 +128,12 @@ function Navbar() {
                 </A>
               </li>
               <li id="introItem2" class="p-2">
-                <A href="/organization" class="p-2">
+                <A href="/realization" class="p-2">
                   Realização
                 </A>
               </li>
               <li id="introItem3" class="p-2">
-                <A href="/support" class="p-2">
+                <A href="/supporters" class="p-2">
                   Apoio
                 </A>
               </li>

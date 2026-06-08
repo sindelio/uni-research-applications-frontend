@@ -117,62 +117,126 @@ function Intro(props) {
 
       {/* ORGANIZATION*/}
       <section
-        id="organization"
+        id="realization"
         class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
       >
-        <h1 class="text-[1.875rem] md:text-5xl col-start-1 col-span-full text-gray-800 my-2 text-5xl font-bold">
+        {/* Heading spans all columns */}
+        <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
           Realização
         </h1>
 
-        <div class="col-start-1 col-span-full">
+        {/* Divider spans all columns */}
+        <div class="col-span-full">
           <div class="h-1 mx-auto gradient w-64 rounded-t"></div>
         </div>
 
+        {/* Card Container: 
+          Spans all 4 columns to provide maximum room for the 4 sponsor images.
+        */}
         <div class="col-start-1 md:col-start-2 md:col-span-3 px-4 pb-4">
-          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg">
-            <div class="p-4 text-xl md:text-xl">
-              ● Evento presencial ● Fórum ● Mostra Científica
+          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg p-6">
+            {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
+              <img
+                src="/images/realizator1.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Realizador 1"
+              />
+              <img
+                src="/images/realizator2.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Realizador 2"
+              />
+              <img
+                src="/images/realizator3.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Realizador 3"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Support*/}
+      {/* SUPPORTERS */}
       <section
-        id="support"
+        id="supporters"
         class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
       >
-        <h1 class="text-[1.875rem] md:text-5xl col-start-1 col-span-full text-gray-800 my-2 text-5xl font-bold">
+        {/* Heading spans all columns */}
+        <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
           Apoio
         </h1>
 
-        <div class="col-start-1 col-span-full">
+        {/* Divider spans all columns */}
+        <div class="col-span-full">
           <div class="h-1 mx-auto gradient w-64 rounded-t"></div>
         </div>
 
+        {/* Card Container: 
+          Spans all 4 columns to provide maximum room for the 4 sponsor images.
+        */}
         <div class="col-start-1 md:col-start-2 md:col-span-3 px-4 pb-4">
-          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg">
-            <div class="p-4 text-xl md:text-xl">● A ● B ● C</div>
+          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg p-6">
+            {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
+              <img
+                src="/images/supporter1.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Apoiador 1"
+              />
+              <img
+                src="/images/supporter2.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Apoiador 2"
+              />
+              <img
+                src="/images/supporter3.png"
+                class="w-32 h-32 object-contain"
+                alt="Apoiador 3"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Sponsors*/}
+      {/* SPONSORS */}
       <section
         id="sponsors"
         class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
       >
-        <h1 class="text-[1.875rem] md:text-5xl col-start-1 col-span-full text-gray-800 my-2 text-5xl font-bold">
+        {/* Heading spans all columns */}
+        <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
           Patrocinadores
         </h1>
 
-        <div class="col-start-1 col-span-full">
+        {/* Divider spans all columns */}
+        <div class="col-span-full">
           <div class="h-1 mx-auto gradient w-64 rounded-t"></div>
         </div>
 
+        {/* Card Container: 
+          Spans all 4 columns to provide maximum room for the 4 sponsor images.
+        */}
         <div class="col-start-1 md:col-start-2 md:col-span-3 px-4 pb-4">
-          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg">
-            <div class="p-4 text-xl md:text-xl">● A ● B ● C</div>
+          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg p-6">
+            {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
+              <img
+                src="/images/sponsor1.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador 1"
+              />
+              <img
+                src="/images/sponsor2.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador 2"
+              />
+              <img
+                src="/images/sponsor3.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador 3"
+              />
+            </div>
           </div>
         </div>
       </section>

@@ -38,12 +38,12 @@ render(
       <Route path="/" component={Intro}></Route>
       <Route path="/event" component={() => <Intro section="event" />}></Route>
       <Route
-        path="/organization"
-        component={() => <Intro section="organization" />}
+        path="/realization"
+        component={() => <Intro section="realization" />}
       ></Route>
       <Route
-        path="/support"
-        component={() => <Intro section="support" />}
+        path="/supporters"
+        component={() => <Intro section="supporters" />}
       ></Route>
       <Route
         path="/sponsors"
