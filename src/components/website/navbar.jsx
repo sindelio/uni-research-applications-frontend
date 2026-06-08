@@ -146,7 +146,17 @@ function Navbar() {
           </li>
         </ul>
 
-        {/* LINK BUTTON */}
+        {/* DOWNLOAD BANNER BUTTON */}
+        <button
+          id="downloadBanner"
+          class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+        >
+          <a href="/images/banner.pptx" download="Banner.pptx">
+            Banner
+          </a>
+        </button>
+
+        {/* CERTIFICATES BUTTON */}
         <button
           id="certificates"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"

@@ -21,7 +21,7 @@ server.use(helmet({
   contentSecurityPolicy: {  
     useDefaults: true,
     directives: { 
-      'connect-src': ["'self'", 'localhost:*', 'api.talentsourcery.io']
+      'connect-src': ["'self'", 'localhost:*', 'enpcv.org']
     },
   },
 })); // Sets response headers securely
