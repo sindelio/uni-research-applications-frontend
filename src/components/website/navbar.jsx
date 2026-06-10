@@ -146,6 +146,16 @@ function Navbar() {
           </li>
         </ul>
 
+        {/* DOWNLOAD EDITAL BUTTON */}
+        <button
+          id="downloadEdital"
+          class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+        >
+          <a href="/images/edital.pdf" download="Edital.pdf">
+            Edital
+          </a>
+        </button>
+
         {/* DOWNLOAD BANNER BUTTON */}
         <button
           id="downloadBanner"
@@ -157,14 +167,14 @@ function Navbar() {
         </button>
 
         {/* CERTIFICATES BUTTON */}
-        <button
+        {/* <button
           id="certificates"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
           <A href="/certificates" class="">
             Certificados
           </A>
-        </button>
+        </button> */}
 
         {/* SIGNIN BUTTON */}
         <button

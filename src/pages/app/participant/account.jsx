@@ -6,6 +6,7 @@ import exists from '../../../helpers/exists.js';
 import toBase64 from '../../../helpers/to-base-64.js';
 import request from '../../../helpers/request.js';
 import Navbar from '../../../components/app/navbar.jsx';
+import Anchor from '../../../components/app/anchor.jsx';
 import Heading from '../../../components/app/heading.jsx';
 import P from '../../../components/app/paragraph.jsx';
 import InputText from '../../../components/app/input-text.jsx';
@@ -43,17 +44,20 @@ async function addAccountInfo() {
 
   // Add content
   const nameEl = document.getElementById('name');
-  nameEl.textContent = `Nome: ${account.name}`;
+  nameEl.textContent = account.name;
   const institutionEl = document.getElementById('institution');
-  institutionEl.textContent = `Instituição: ${account.institution}`;
+  institutionEl.textContent = account.institution;
   const emailEl = document.getElementById('email');
-  emailEl.textContent = `Email: ${account.email}`;
+  emailEl.textContent = account.email;
   const phoneEl = document.getElementById('phone');
-  phoneEl.textContent = `Phone: ${account.phone}`;
+  phoneEl.textContent = account.phone;
   const receiptEl = document.getElementById('receipt');
-  receiptEl.innerHTML = `Comprovante de inscrição: <span class="text-red-500">Pendente</span>`;
   if (account.receiptFile.isSubmitted) {
-    receiptEl.innerHTML = `Comprovante de inscrição: <span class="text-green-500">Enviado</span>`;
+    receiptEl.innerHTML = 'Enviado';
+    receiptEl.classList.add('text-green-500');
+  } else {
+    receiptEl.innerHTML = 'Pendente';
+    receiptEl.classList.add('text-red-500');
   }
 }
 
@@ -250,6 +254,10 @@ async function updateReceiptButtonVisibility() {
     // Hide the submit button
     const sendReceiptEl = document.querySelector('#sendReceipt');
     sendReceiptEl.classList.add('hidden');
+
+    // Hide the registration link
+    const linkRegistrationEl = document.querySelector('#registrationLink');
+    linkRegistrationEl.classList.add('hidden');
   }
 }
 
@@ -415,15 +423,21 @@ function ParticipantAccount() {
       <div class="ml-72 m-8">
         {/* Heading */}
         <Heading>Dados da conta</Heading>
-        <P id="name">Nome:</P>
-        <P id="institution">Instituição:</P>
-        <P id="email">Email:</P>
-        <P id="phone">Fone:</P>
-        <P id="maxConventionalProjects">
-          Número máximo de projetos convencionais: 2
+        <P>
+          Nome: <span id="name"></span>
         </P>
-        <P id="maxPhotoProjects">Número máximo de projetos fotográficos: 1</P>
-        <P id="receipt">Comprovante de inscrição:</P>
+        <P>
+          Instituição: <span id="institution"></span>
+        </P>
+        <P>
+          Email: <span id="email"></span>
+        </P>
+        <P>
+          Fone: <span id="phone"></span>
+        </P>
+        <P inputClass="mb-6">
+          Comprovante de inscrição na FUNEP: <span id="receipt"></span>
+        </P>
 
         {/* Update details */}
         <Button id="updateDetails" type="button">
@@ -483,15 +497,24 @@ function ParticipantAccount() {
           </Button>
         </form>
 
-        {/* Send receipt */}
+        {/* Link to registration */}
+        <Anchor
+          id="registrationLink"
+          href="https://www.funep.org.br/evento/viiienpcv2026/"
+          inputClass="ml-0"
+        >
+          Link para Inscrição na FUNEP
+        </Anchor>
+
+        {/* Send registration receipt */}
         <Button id="sendReceipt" type="button">
-          Enviar comprovante de inscrição
+          Enviar comprovante de inscrição na FUNEP
         </Button>
         <form id="receiptForm" class="hidden" enctype="multipart/form-data">
           <Divider inputClass="w-full bg-purple-500 border-purple-500"></Divider>
           <div class="my-4">
             <label class="block mb-2 text-sm font-medium text-gray-900">
-              Comprovante de inscrição (PDF) *
+              Comprovante de inscrição na FUNEP (PDF) *
             </label>
             <input
               type="file"

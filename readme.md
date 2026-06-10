@@ -2,12 +2,9 @@ gcloud compute ssh root@instance-enpcv
 
 TODO:
 - Participant
-  - Change navbar logo
-  - Change login image
   - Projects
-    - Only allow file upload for photo
-    - Limit number of projects to 2 conventional and 1 photo
-    - Test big file upload
+    - Add separate fields for author city and state
+  - Translate errors in English to PT-BR
 -Examiner
   - Update maxProjects
   - Add project score (only for conventional, 1 to 5)

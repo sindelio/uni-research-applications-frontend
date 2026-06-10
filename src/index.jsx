@@ -47,7 +47,7 @@ render(
       ></Route>
       <Route
         path="/sponsors"
-        component={() => <Intro section="sponsors" />}
+        component={() => <Intro section="sponsorsDiamond" />}
       ></Route>
       <Route path="/certificates" component={Intro}></Route>
 

@@ -1,8 +1,9 @@
 import env from '../../../../client-envs/current.js';
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onMount, For } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../helpers/check-session-jwt.js';
 import exists from '../../../../helpers/exists.js';
+import areas from '../../../../helpers/areas.js';
 import toBase64 from '../../../../helpers/to-base-64.js';
 import request from '../../../../helpers/request.js';
 import Navbar from '../../../../components/app/navbar.jsx';
@@ -11,6 +12,7 @@ import InputText from '../../../../components/app/input-text.jsx';
 import Button from '../../../../components/app/button.jsx';
 import Divider from '../../../../components/app/divider.jsx';
 import TextArea from '../../../../components/app/text-area.jsx';
+
 import errorMessage from '../../../../helpers/error-message.js';
 
 const { PROJECT_TYPE_CONVENTIONAL, PROJECT_TYPE_PHOTO } = env;
@@ -455,7 +457,7 @@ async function addSubmitListener() {
       });
       return null;
     }
-    if (keywords.length < 1) {
+    if (keywords.length < 3 || keywords.length > 5) {
       await Swal.fire({
         title: 'Oops',
         text: 'Verifique as palavras-chave.',
@@ -596,7 +598,7 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="authorInstitution"
-                placeholder="Instituição do autor .."
+                placeholder="Instituição, Município, Unidade Federal (exatamente neste formato)"
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
@@ -618,59 +620,21 @@ function ParticipantProjectCreate() {
           {/* Areas */}
           <div>
             <p class="my-2">Areas * (max 2)</p>
-            <input id="area0" type="checkbox" area="Hematologia"></input>
-            <label class="mx-4">Hematologia</label>
-            <br />
-
-            <input id="area1" type="checkbox" area="Citopatologia"></input>
-            <label class="mx-4">Citopatologia</label>
-            <br />
-
-            <input id="area2" type="checkbox" area="Parasitologia"></input>
-            <label class="mx-4">Parasitologia</label>
-            <br />
-
-            <input
-              id="area3"
-              type="checkbox"
-              area="Pet não convencional"
-            ></input>
-            <label class="mx-4">Pet não convencional</label>
-            <br />
-
-            <input id="area4" type="checkbox" area="Biologia molecular"></input>
-            <label class="mx-4">Biologia molecular</label>
-            <br />
-
-            <input id="area5" type="checkbox" area="Dermatologia"></input>
-            <label class="mx-4">Dermatologia</label>
-            <br />
-
-            <input id="area6" type="checkbox" area="Urinálise"></input>
-            <label class="mx-4">Urinálise</label>
-            <br />
-
-            <input id="area7" type="checkbox" area="Derrame cavitário"></input>
-            <label class="mx-4">Derrame cavitário</label>
-            <br />
-
-            <input id="area8" type="checkbox" area="Medula óssea"></input>
-            <label class="mx-4">Medula óssea</label>
-            <br />
-
-            <input
-              id="area9"
-              type="checkbox"
-              area="Líquido sinovial e cefalorraquidiano"
-            ></input>
-            <label class="mx-4">Líquido sinovial e cefalorraquidiano</label>
-            <br />
+            <For each={areas}>
+              {(area, index) => (
+                <>
+                  <input id={`area${index()}`} type="checkbox" area={area} />
+                  <label class="mx-4">{area}</label>
+                  <br />
+                </>
+              )}
+            </For>
           </div>
           <br />
 
           {/* Keywords */}
           <div>
-            <p class="mb-2">Palavras-chave *</p>
+            <p class="mb-2">Palavras-chave * (3 a 5)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"
@@ -690,10 +654,11 @@ function ParticipantProjectCreate() {
           {/* Summary */}
           <TextArea
             id="summary"
-            label="Resumo * (max 512 caracteres)"
+            label="Resumo * (max 2450 caracteres)"
             placeholder="Resumo do projeto .."
             rows={8}
             cols={48}
+            maxlength={2450}
           ></TextArea>
 
           {/* References */}

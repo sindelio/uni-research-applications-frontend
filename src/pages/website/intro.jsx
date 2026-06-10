@@ -84,12 +84,6 @@ function Intro(props) {
               <span class="text-amber-400">16, 17 e 18</span> de Outubro de 2026
             </p>
           </div>
-
-          {/* <img
-            src="/images/hero-2.jpeg"
-            alt="Herói"
-            class="mx-auto w-128 h-64"
-          /> */}
         </div>
       </section>
 
@@ -115,7 +109,7 @@ function Intro(props) {
         </div>
       </section>
 
-      {/* ORGANIZATION*/}
+      {/* REALIZATION */}
       <section
         id="realization"
         class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
@@ -180,33 +174,38 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/supporter1.jpeg"
+                src="/images/supporter-1.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 1"
               />
               <img
-                src="/images/supporter2.jpeg"
+                src="/images/supporter-2.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 2"
               />
               <img
-                src="/images/supporter3.png"
+                src="/images/supporter-3.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 3"
+              />
+              <img
+                src="/images/supporter-4.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Apoiador 4"
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* SPONSORS */}
+      {/* SPONSORS DIAMOND */}
       <section
-        id="sponsors"
+        id="sponsorsDiamond"
         class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
       >
         {/* Heading spans all columns */}
         <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
-          Patrocinadores
+          Patrocinadores Diamante
         </h1>
 
         {/* Divider spans all columns */}
@@ -222,19 +221,61 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/sponsor1.jpeg"
+                src="/images/sponsor-diamond-1.jpeg"
                 class="w-32 h-32 object-contain"
-                alt="Patrocinador 1"
+                alt="Patrocinador Diamante 1"
               />
               <img
-                src="/images/sponsor2.jpeg"
+                src="/images/sponsor-diamond-2.jpeg"
                 class="w-32 h-32 object-contain"
-                alt="Patrocinador 2"
+                alt="Patrocinador Diamante 2"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SPONSORS BRONZE */}
+      <section
+        id="sponsorsBronze"
+        class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
+      >
+        {/* Heading spans all columns */}
+        <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
+          Patrocinadores Bronze
+        </h1>
+
+        {/* Divider spans all columns */}
+        <div class="col-span-full">
+          <div class="h-1 mx-auto gradient w-64 rounded-t"></div>
+        </div>
+
+        {/* Card Container: 
+          Spans all 4 columns to provide maximum room for the 4 sponsor images.
+        */}
+        <div class="col-start-1 md:col-start-2 md:col-span-3 px-4 pb-4">
+          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg p-6">
+            {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
+              <img
+                src="/images/sponsor-bronze-1.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador Bronze 1"
               />
               <img
-                src="/images/sponsor3.jpeg"
+                src="/images/sponsor-bronze-2.jpeg"
                 class="w-32 h-32 object-contain"
-                alt="Patrocinador 3"
+                alt="Patrocinador Bronze 2"
+              />
+              <img
+                src="/images/sponsor-bronze-3.jpeg"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador Bronze 3"
+              />
+              <img
+                src="/images/sponsor-bronze-4.png"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador Bronze 4"
               />
             </div>
           </div>
