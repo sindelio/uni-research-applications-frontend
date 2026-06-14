@@ -21,9 +21,9 @@ const [getAccount, setAccount] = createSignal(null);
 const [getProject, setProject] = createSignal(null);
 
 const MAX_AREAS = 2;
-let authorIndex = 1;
-let keywordIndex = 1;
-let referenceIndex = 1;
+let authorIndex = 0;
+let keywordIndex = 0;
+let referenceIndex = 0;
 
 async function readAccount() {
   const responseJson = await request('GET', '/participant', null, true);
@@ -99,7 +99,14 @@ async function populateProjectInfo() {
           const firstAuthorEl = document.getElementById('author0');
           firstAuthorEl.dataset.name = author.name;
           firstAuthorEl.dataset.institution = author.institution || '';
-          firstAuthorEl.textContent = `${author.name} (${author.institution})`;
+          firstAuthorEl.dataset.city = author.city || '';
+          firstAuthorEl.dataset.state = author.state || '';
+
+          let text = `${author.name} (${author.institution || ''}`;
+          if (author.city && author.state)
+            text += ` - ${author.city}/${author.state}`;
+          text += `)`;
+          firstAuthorEl.textContent = text;
         } else {
           // Programmatically build additional authors
           const newAuthorId = `author${authorIndex}`;
@@ -108,10 +115,17 @@ async function populateProjectInfo() {
           newAuthorEl.type = 'button';
           newAuthorEl.classList =
             'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
-          newAuthorEl.textContent = `${author.name} (${author.institution})`;
+
+          let text = `${author.name} (${author.institution || ''}`;
+          if (author.city && author.state)
+            text += ` - ${author.city}/${author.state}`;
+          text += `)`;
+          newAuthorEl.textContent = text;
 
           newAuthorEl.dataset.name = author.name;
-          newAuthorEl.dataset.institution = author.institution;
+          newAuthorEl.dataset.institution = author.institution || '';
+          newAuthorEl.dataset.city = author.city || '';
+          newAuthorEl.dataset.state = author.state || '';
 
           document.getElementById('authors').appendChild(newAuthorEl);
           await addRemoveElementListener(newAuthorId);
@@ -195,19 +209,6 @@ async function populateProjectInfo() {
       }
     }
   }
-  // Else populate only the first author
-  else {
-    // Get account
-    const account = getAccount();
-
-    // Get first author element
-    const firstAuthorEl = document.getElementById('author0');
-
-    // We use dataset to store the values for easy retrieval later
-    firstAuthorEl.dataset.name = account.name;
-    firstAuthorEl.dataset.institution = account.institution || '';
-    firstAuthorEl.textContent = `${account.name} (${account.institution})`;
-  }
 }
 
 async function addRemoveElementListener(elementId) {
@@ -222,13 +223,21 @@ async function addNewAuthorListener() {
   plusAuthorButtonEl.addEventListener('click', async (event) => {
     const authorNameEl = document.getElementById('authorName');
     const authorInstitutionEl = document.getElementById('authorInstitution');
+    const authorCityEl = document.getElementById('authorCity');
+    const authorStateEl = document.getElementById('authorState');
 
     // Check input
     if (
       authorNameEl.value.trim() === '' ||
-      authorInstitutionEl.value.trim() === ''
+      authorInstitutionEl.value.trim() === '' ||
+      authorCityEl.value.trim() === '' ||
+      authorStateEl.value.trim() === ''
     ) {
-      Swal.fire('Oops', 'Preencha nome e instituição do autor.', 'warning');
+      Swal.fire(
+        'Oops',
+        'Preencha nome, instituição, cidade e estado do autor.',
+        'warning',
+      );
       return;
     }
 
@@ -239,11 +248,13 @@ async function addNewAuthorListener() {
     newAuthorEl.type = 'button';
     newAuthorEl.classList =
       'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
-    newAuthorEl.textContent = `${authorNameEl.value} (${authorInstitutionEl.value})`;
+    newAuthorEl.textContent = `${authorNameEl.value} (${authorInstitutionEl.value} - ${authorCityEl.value}/${authorStateEl.value})`;
 
     // Store data in attributes
     newAuthorEl.dataset.name = authorNameEl.value;
     newAuthorEl.dataset.institution = authorInstitutionEl.value;
+    newAuthorEl.dataset.city = authorCityEl.value;
+    newAuthorEl.dataset.state = authorStateEl.value;
 
     // Append new element
     document.getElementById('authors').appendChild(newAuthorEl);
@@ -251,6 +262,8 @@ async function addNewAuthorListener() {
     // Clear inputs
     authorNameEl.value = '';
     authorInstitutionEl.value = '';
+    authorCityEl.value = '';
+    authorStateEl.value = '';
 
     // Add removal listener
     await addRemoveElementListener(newAuthorId);
@@ -389,11 +402,15 @@ async function addSubmitListener() {
     authorButtonEls.forEach((authorButtonEl) => {
       const name = authorButtonEl.dataset.name;
       const institution = authorButtonEl.dataset.institution;
+      const city = authorButtonEl.dataset.city;
+      const state = authorButtonEl.dataset.state;
 
       if (name && institution) {
         authors.push({
           name: name.trim(),
           institution: institution.trim(),
+          city: city ? city.trim() : '',
+          state: state ? state.trim() : '',
         });
       }
     });
@@ -438,7 +455,7 @@ async function addSubmitListener() {
 
     // Photo file
     const photoEl = document.getElementById('photoFile');
-    const photoFile = photoEl.files[0];
+    const photoFile = photoEl.files;
 
     // Check input
     if (!exists(title) || title?.length < 3) {
@@ -560,7 +577,6 @@ function ParticipantProjectCreate() {
     await readAccount();
     await checkReceiptSubmission();
     await populateProjectInfo();
-    await addRemoveElementListener('author0');
     await addNewAuthorListener();
     await addMaxAreasListeners();
     await addNewKeywordListener();
@@ -591,31 +607,39 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="authorName"
-                placeholder="Nome do autor .."
+                placeholder="Nome completo do autor .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
               <input
                 type="text"
                 id="authorInstitution"
-                placeholder="Instituição, Município, Unidade Federal (exatamente neste formato)"
+                placeholder="Instituição .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
               />
-              <Button id="plusAuthorButton" inputClass="w-fit">
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  id="authorCity"
+                  placeholder="Cidade .."
+                  class="w-full px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
+                />
+                <input
+                  type="text"
+                  id="authorState"
+                  placeholder="Estado (ex: SP) .."
+                  class="w-1/3 px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
+                  maxlength="2"
+                />
+              </div>
+              <Button id="plusAuthorButton" inputClass="w-fit mt-2">
                 Adicionar Autor
               </Button>
             </div>
           </div>
           {/* Added authors */}
-          <div id="authors" class="flex flex-wrap gap-2 mb-8">
-            {/* The first author (the user) will be injected here */}
-            <button
-              id="author0"
-              type="button"
-              class="px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400"
-            ></button>
-          </div>
+          <div id="authors" class="flex flex-wrap gap-2 mb-8 mt-4"></div>
 
           {/* Areas */}
           <div>

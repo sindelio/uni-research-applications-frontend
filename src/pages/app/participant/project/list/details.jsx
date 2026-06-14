@@ -66,10 +66,15 @@ async function addProjectInfo() {
   const authorsContainer = document.getElementById('authorsList');
   authorsContainer.innerHTML = ''; // Clear
   project.authors.forEach((author) => {
+    const authorName = author?.name || '';
+    const authorInstitution = author?.institution || '';
+    const authorCity = author?.city || '';
+    const authorState = author?.state || '';
     const span = document.createElement('span');
+    keywordsList;
     span.className =
       'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
-    span.textContent = `${author.name} — ${author.institution}`;
+    span.textContent = `${authorName} (${authorInstitution} - ${authorCity}/${authorState})`;
     authorsContainer.appendChild(span);
   });
 
@@ -78,7 +83,7 @@ async function addProjectInfo() {
   areasEl.textContent = project.areas.join(', ');
 
   // Keywords
-  const keywordsContainer = document.getElementById('keywords-list');
+  const keywordsContainer = document.getElementById('keywordsList');
   keywordsContainer.innerHTML = '';
   if (project.keywords && project.keywords.length > 0) {
     project.keywords.forEach((keyword) => {
@@ -104,7 +109,7 @@ async function addProjectInfo() {
     project?.createdAt?.readableDate || '-';
 
   // References
-  const referencesContainer = document.getElementById('references-list');
+  const referencesContainer = document.getElementById('referencesList');
   referencesContainer.innerHTML = '';
   if (project.references && project.references.length > 0) {
     project.references.forEach((reference) => {
@@ -312,7 +317,7 @@ function ParticipantProjectListDetails() {
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
               Palavras-chave
             </label>
-            <div id="keywords-list" class="mt-2 flex flex-wrap gap-2"></div>
+            <div id="keywordsList" class="mt-2 flex flex-wrap gap-2"></div>
           </section>
           <hr class="border-gray-100" />
 
@@ -333,7 +338,7 @@ function ParticipantProjectListDetails() {
               Referências Bibliográficas
             </label>
             <ol
-              id="references-list"
+              id="referencesList"
               class="mt-2 space-y-1 list-decimal list-inside text-gray-700"
             ></ol>
           </section>
