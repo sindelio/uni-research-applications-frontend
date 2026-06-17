@@ -501,6 +501,7 @@ function ParticipantAccount() {
         <Anchor
           id="registrationLink"
           href="https://www.funep.org.br/evento/viiienpcv2026/"
+          target="_blank"
           inputClass="ml-0"
         >
           Link para Inscrição na FUNEP

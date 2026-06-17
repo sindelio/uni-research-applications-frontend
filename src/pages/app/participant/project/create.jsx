@@ -678,7 +678,7 @@ function ParticipantProjectCreate() {
           {/* Summary */}
           <TextArea
             id="summary"
-            label="Resumo * (max 2450 caracteres)"
+            label="Resumo * (max 2450 caracteres com espaços)"
             placeholder="Resumo do projeto .."
             rows={8}
             cols={48}
