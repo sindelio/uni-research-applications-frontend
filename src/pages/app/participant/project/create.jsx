@@ -458,7 +458,7 @@ async function addSubmitListener() {
     const photoFile = photoEl.files;
 
     // Check input
-    if (!exists(title) || title?.length < 3) {
+    if (!exists(title) || title?.length < 3 || title?.length > 500) {
       await Swal.fire({
         title: 'Oops',
         text: 'Verifique o título.',
@@ -474,6 +474,21 @@ async function addSubmitListener() {
       });
       return null;
     }
+    for (let i = 0; i < authors?.length; i++) {
+      const author = authors[i];
+      if (
+        author?.name?.length > 500 ||
+        author?.institution?.length > 500 ||
+        author?.city?.length > 500
+      ) {
+        await Swal.fire({
+          title: 'Oops',
+          text: 'Verifique os autores.',
+          confirmButtonText: 'OK',
+        });
+        return null;
+      }
+    }
     if (keywords.length < 3 || keywords.length > 5) {
       await Swal.fire({
         title: 'Oops',
@@ -482,7 +497,18 @@ async function addSubmitListener() {
       });
       return null;
     }
-    if (!exists(summary) || summary.length < 3) {
+    for (let i = 0; i < keywords?.length; i++) {
+      const keyword = keywords[i];
+      if (keyword?.length > 500) {
+        await Swal.fire({
+          title: 'Oops',
+          text: 'Verifique as palavras-chave.',
+          confirmButtonText: 'OK',
+        });
+        return null;
+      }
+    }
+    if (!exists(summary) || summary?.length < 3 || summary?.length > 2450) {
       await Swal.fire({
         title: 'Oops',
         text: 'Verifique o resumo.',
@@ -595,9 +621,10 @@ function ParticipantProjectCreate() {
           {/* Title */}
           <InputText
             id="title"
-            label="Título *"
+            label="Título * (max 500 caracteres)"
             size={24}
             placeholder="Título do projeto .."
+            maxlength={500}
           ></InputText>
 
           {/* Authors */}
@@ -607,28 +634,31 @@ function ParticipantProjectCreate() {
               <input
                 type="text"
                 id="authorName"
-                placeholder="Nome completo do autor .."
+                placeholder="Nome completo do autor * (max 500 caracteres)"
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
+                maxLength={500}
               />
               <input
                 type="text"
                 id="authorInstitution"
-                placeholder="Instituição .."
+                placeholder="Instituição * (max 500 caracteres)"
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
+                maxLength={500}
               />
               <div class="flex gap-2">
                 <input
                   type="text"
                   id="authorCity"
-                  placeholder="Cidade .."
+                  placeholder="Cidade * (max 500 caracteres)"
                   class="w-full px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
+                  maxLength={500}
                 />
                 <input
                   type="text"
                   id="authorState"
-                  placeholder="Estado (ex: SP) .."
+                  placeholder="Estado * (ex: SP)"
                   class="w-1/3 px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                   maxlength="2"
                 />
@@ -658,7 +688,7 @@ function ParticipantProjectCreate() {
 
           {/* Keywords */}
           <div>
-            <p class="mb-2">Palavras-chave * (3 a 5)</p>
+            <p class="mb-2">Palavras-chave * (3 a 5) (max 500 caracteres)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"
@@ -666,6 +696,7 @@ function ParticipantProjectCreate() {
                 placeholder="Palavra-chave .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
+                maxLength={500}
               />
               <Button id="plusKeywordButton" inputClass="w-fit">
                 Adicionar Palavra-Chave
@@ -687,7 +718,7 @@ function ParticipantProjectCreate() {
 
           {/* References */}
           <div>
-            <p class="mb-2">Referências *</p>
+            <p class="mb-2">Referências * (max 500 caracteres cada)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"
@@ -695,6 +726,7 @@ function ParticipantProjectCreate() {
                 placeholder="Referência .."
                 class="px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                 size={24}
+                maxlength={500}
               />
               <Button id="plusReferenceButton" inputClass="w-fit">
                 Adicionar Referência
