@@ -33,10 +33,18 @@ async function addSignOutListener() {
   });
 }
 
+async function showAdminOnlyNavigation() {
+  if (userType === 'admin') {
+    const userEl = document.querySelector('#user');
+    userEl.classList.remove('hidden');
+  }
+}
+
 function Navbar() {
   onMount(async () => {
     await addWindowWidthListener();
     await addSignOutListener();
+    await showAdminOnlyNavigation();
   });
 
   return (
@@ -48,7 +56,7 @@ function Navbar() {
       >
         <img
           id="icon"
-          src="/images/icon.png"
+          src="/images/icons-navbar/icon.png"
           alt="Icon"
           class="mx-auto my-4 w-16 h-16"
         />
@@ -59,30 +67,54 @@ function Navbar() {
           >
             <img
               id="dashboard"
-              src="/images/dashboard.svg"
+              src="/images/icons-navbar/dashboard.png"
               class="h-6 w-6"
             ></img>
             <span class="ml-4 mt-0.5">Dashboard</span>
           </a>
           <a
-            href={`/app/${userType}/project`}
-            class=" flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
+            id="user"
+            href={`/app/${userType}/user`}
+            class="hidden flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
-            <img id="api" src="/images/api.svg" class="h-6 w-6"></img>
+            <img
+              id="api"
+              src="/images/icons-navbar/users.png"
+              class="h-6 w-6"
+            ></img>
+            <span class="ml-4 mt-0.5">Usuários</span>
+          </a>
+          <a
+            href={`/app/${userType}/project`}
+            class="flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
+          >
+            <img
+              id="api"
+              src="/images/icons-navbar/project.png"
+              class="h-6 w-6"
+            ></img>
             <span class="ml-4 mt-0.5">Projetos</span>
           </a>
           <a
             href={`/app/${userType}/account`}
             class="flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
-            <img id="account" src="/images/account.svg" class="h-6 w-6"></img>
+            <img
+              id="account"
+              src="/images/icons-navbar/account.png"
+              class="h-6 w-6"
+            ></img>
             <span class="ml-4 mt-0.5">Conta</span>
           </a>
           <a
             href="/app/support"
             class="flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
-            <img id="support" src="/images/support.svg" class="h-6 w-6"></img>
+            <img
+              id="support"
+              src="/images/icons-navbar/support.png"
+              class="h-6 w-6"
+            ></img>
             <span class="ml-4 mt-0.5">Suporte</span>
           </a>
           <hr class="w-[80%] h-[0.15rem] mx-auto my-8 bg-white rounded-2xl"></hr>
@@ -91,7 +123,11 @@ function Navbar() {
             type="button"
             class="flex mx-auto p-3 rounded-lg transition duration-200 hover:bg-purple-800 hover:cursor-pointer"
           >
-            <img id="support" src="/images/sign-out.svg" class="h-6 w-6"></img>
+            <img
+              id="support"
+              src="/images/icons-navbar/sign-out.png"
+              class="h-6 w-6"
+            ></img>
             <span class="ml-4 mt-0.5">Sair</span>
           </button>
         </nav>

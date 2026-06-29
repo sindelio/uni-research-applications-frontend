@@ -15,7 +15,11 @@ import TextArea from '../../../../components/app/text-area.jsx';
 
 import errorMessage from '../../../../helpers/error-message.js';
 
-const { PROJECT_TYPE_CONVENTIONAL, PROJECT_TYPE_PHOTO } = env;
+const {
+  PROJECT_WAITING_EXAMINER,
+  PROJECT_TYPE_CONVENTIONAL,
+  PROJECT_TYPE_PHOTO,
+} = env;
 
 const [getAccount, setAccount] = createSignal(null);
 const [getProject, setProject] = createSignal(null);
@@ -84,53 +88,33 @@ async function populateProjectInfo() {
     // Title
     const titleEl = document.getElementById('title');
     titleEl.value = project.title;
-    titleEl.disabled = true;
-    // Replicates the style in InputText component
-    titleEl.className =
-      'mt-2 mb-6 px-4 py-1 bg-transparent-100 text-gray-400 border border-gray-300 rounded-lg hover:cursor-default';
 
     // Authors
     if (exists(project.authors)) {
       for (let i = 0; i < project.authors.length; i++) {
         const author = project.authors[i];
 
-        if (i === 0) {
-          // Update the pre-rendered first author button
-          const firstAuthorEl = document.getElementById('author0');
-          firstAuthorEl.dataset.name = author.name;
-          firstAuthorEl.dataset.institution = author.institution || '';
-          firstAuthorEl.dataset.city = author.city || '';
-          firstAuthorEl.dataset.state = author.state || '';
+        const newAuthorId = `author${authorIndex}`;
+        const newAuthorEl = document.createElement('button');
+        newAuthorEl.id = newAuthorId;
+        newAuthorEl.type = 'button';
+        newAuthorEl.classList =
+          'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
 
-          let text = `${author.name} (${author.institution || ''}`;
-          if (author.city && author.state)
-            text += ` - ${author.city}/${author.state}`;
-          text += `)`;
-          firstAuthorEl.textContent = text;
-        } else {
-          // Programmatically build additional authors
-          const newAuthorId = `author${authorIndex}`;
-          const newAuthorEl = document.createElement('button');
-          newAuthorEl.id = newAuthorId;
-          newAuthorEl.type = 'button';
-          newAuthorEl.classList =
-            'px-4 py-1 text-purple-600 border border-purple-400 rounded-lg hover:bg-red-100 hover:text-red-600 hover:border-red-400 hover:cursor-pointer';
+        let text = `${author.name} (${author.institution || ''}`;
+        if (author.city && author.state)
+          text += ` - ${author.city}/${author.state}`;
+        text += `)`;
+        newAuthorEl.textContent = text;
 
-          let text = `${author.name} (${author.institution || ''}`;
-          if (author.city && author.state)
-            text += ` - ${author.city}/${author.state}`;
-          text += `)`;
-          newAuthorEl.textContent = text;
+        newAuthorEl.dataset.name = author.name;
+        newAuthorEl.dataset.institution = author.institution || '';
+        newAuthorEl.dataset.city = author.city || '';
+        newAuthorEl.dataset.state = author.state || '';
 
-          newAuthorEl.dataset.name = author.name;
-          newAuthorEl.dataset.institution = author.institution || '';
-          newAuthorEl.dataset.city = author.city || '';
-          newAuthorEl.dataset.state = author.state || '';
-
-          document.getElementById('authors').appendChild(newAuthorEl);
-          await addRemoveElementListener(newAuthorId);
-          authorIndex++;
-        }
+        document.getElementById('authors').appendChild(newAuthorEl);
+        await addRemoveElementListener(newAuthorId);
+        authorIndex++;
       }
     }
 
@@ -571,8 +555,8 @@ async function addSubmitListener() {
     const project = getProject();
     if (exists(project)) {
       httpMethod = 'PATCH';
-      delete payload.title;
       url = `/participant/project?projectId=${project._id}`;
+      payload.status = PROJECT_WAITING_EXAMINER;
     }
 
     // Send request
@@ -593,7 +577,7 @@ async function addSubmitListener() {
       text: 'Projeto submetido para avaliação!',
       confirmButtonText: 'OK',
     });
-    window.location.reload(); // Refresh to reset state
+    window.location.href = '/app/participant/project/create';
   });
 }
 
@@ -673,7 +657,7 @@ function ParticipantProjectCreate() {
 
           {/* Areas */}
           <div>
-            <p class="my-2">Areas * (max 2)</p>
+            <p class="my-2">Areas * (1 a 2)</p>
             <For each={areas}>
               {(area, index) => (
                 <>
@@ -688,7 +672,7 @@ function ParticipantProjectCreate() {
 
           {/* Keywords */}
           <div>
-            <p class="mb-2">Palavras-chave * (3 a 5) (max 500 caracteres)</p>
+            <p class="mb-2">Palavras-chave * (3 a 5, max 500 caracteres)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"
@@ -709,7 +693,7 @@ function ParticipantProjectCreate() {
           {/* Summary */}
           <TextArea
             id="summary"
-            label="Resumo * (max 2450 caracteres com espaços)"
+            label="Resumo * (max 2450 caracteres)"
             placeholder="Resumo do projeto .."
             rows={8}
             cols={48}
@@ -718,7 +702,7 @@ function ParticipantProjectCreate() {
 
           {/* References */}
           <div>
-            <p class="mb-2">Referências * (max 500 caracteres cada)</p>
+            <p class="mb-2">Referências * (1 a 50, max 500 caracteres)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"

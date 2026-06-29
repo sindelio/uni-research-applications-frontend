@@ -86,7 +86,11 @@ function Navbar() {
       <div class="flex justify-between items-center w-full md:w-auto">
         {/* BRAND ICON */}
         <A href="/" class="flex items-center md:pr-16">
-          <img src="/images/icon.png" alt="ENPCV" class="w-24 h-18 p-1" />
+          <img
+            src="/images/icons-navbar/icon.png"
+            alt="ENPCV"
+            class="w-24 h-18 p-1"
+          />
           <div
             style={{ 'font-family': 'Wizzta' }}
             class="hidden xs:block text-3xl pl-2 lg:text-4xl lg:pl-6"
@@ -151,7 +155,7 @@ function Navbar() {
           id="downloadEdital"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
-          <a href="/images/edital.pdf" download="Edital.pdf">
+          <a href="/images/documents/edital.pdf" download="Edital.pdf">
             Edital
           </a>
         </button>
@@ -161,7 +165,7 @@ function Navbar() {
           id="downloadBanner"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
-          <a href="/images/banner.pptx" download="Banner.pptx">
+          <a href="/images/documents/banner.pptx" download="Banner.pptx">
             Banner
           </a>
         </button>

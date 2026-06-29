@@ -12,6 +12,7 @@ import errorMessage from '../../../../helpers/error-message.js';
 const {
   PROJECT_WAITING_EXAMINER,
   PROJECT_PENDING_REVIEW,
+  PROJECT_PARTIALLY_APPROVED,
   PROJECT_APPROVED,
   PROJECT_REJECTED,
 } = env;
@@ -52,6 +53,9 @@ async function addListInfo(itemsInPage) {
     let statusInfo = '<span class="text-amber-400">Aguardando avaliador</span>';
     if (item.status === PROJECT_PENDING_REVIEW) {
       statusInfo = '<span class="text-blue-400">Aguardando avaliação</span>';
+    }
+    if (item.status === PROJECT_PARTIALLY_APPROVED) {
+      statusInfo = '<span class="text-teal-400">Parcialmente Aprovado</span>';
     }
     if (item.status === PROJECT_APPROVED) {
       statusInfo = '<span class="text-green-400">Aprovado</span>';

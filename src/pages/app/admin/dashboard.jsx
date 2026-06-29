@@ -14,6 +14,7 @@ const [getNumberOfProjects0, setNumberOfProjects0] = createSignal(0);
 const [getNumberOfProjects1, setNumberOfProjects1] = createSignal(0);
 const [getNumberOfProjects2, setNumberOfProjects2] = createSignal(0);
 const [getNumberOfProjects3, setNumberOfProjects3] = createSignal(0);
+const [getNumberOfProjects4, setNumberOfProjects4] = createSignal(0);
 
 async function readStats() {
   const responseJson = await request('GET', '/admin/stats', null, true);
@@ -33,8 +34,9 @@ async function readStats() {
   setNumberOfParticipants(stats.participants);
   setNumberOfProjects0(stats.projectsWaitingExaminer);
   setNumberOfProjects1(stats.projectsPendingReview);
-  setNumberOfProjects2(stats.projectsApproved);
-  setNumberOfProjects3(stats.projectsRejected);
+  setNumberOfProjects2(stats.projectsPartiallyApproved);
+  setNumberOfProjects3(stats.projectsApproved);
+  setNumberOfProjects4(stats.projectsRejected);
 }
 
 function Dashboard() {
@@ -53,9 +55,7 @@ function Dashboard() {
 
         {/* Users Section */}
         <div class="mt-6 mb-3">
-          <h2 class="text-lg font-semibold text-gray-700">
-            Contagem de Usuários
-          </h2>
+          <h2 class="text-lg font-semibold text-gray-700">Usuários</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           {/* Card: Avaliadores */}
@@ -100,9 +100,7 @@ function Dashboard() {
 
         {/* Projects Section */}
         <div class="mb-3">
-          <h2 class="text-lg font-semibold text-gray-700">
-            Status dos Projetos
-          </h2>
+          <h2 class="text-lg font-semibold text-gray-700">Projetos</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card: Aguardando Avaliador */}
@@ -131,6 +129,19 @@ function Dashboard() {
             </span>
           </div>
 
+          {/* Card: Parcialmente Aprovados */}
+          <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-teal-400 border-t border-r border-b border-gray-200 p-4 flex flex-col">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Parcialmente Aprovados
+            </span>
+            <span
+              class="text-2xl font-extrabold text-teal-600 mt-1"
+              id="projects2"
+            >
+              {getNumberOfProjects2() ?? '-'}
+            </span>
+          </div>
+
           {/* Card: Aprovados */}
           <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-green-400 border-t border-r border-b border-gray-200 p-4 flex flex-col">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -140,7 +151,7 @@ function Dashboard() {
               class="text-2xl font-extrabold text-green-600 mt-1"
               id="projects2"
             >
-              {getNumberOfProjects2() ?? '-'}
+              {getNumberOfProjects3() ?? '-'}
             </span>
           </div>
 
@@ -153,7 +164,7 @@ function Dashboard() {
               class="text-2xl font-extrabold text-red-600 mt-1"
               id="projects3"
             >
-              {getNumberOfProjects3() ?? '-'}
+              {getNumberOfProjects4() ?? '-'}
             </span>
           </div>
         </div>

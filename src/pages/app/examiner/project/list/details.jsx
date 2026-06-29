@@ -10,7 +10,12 @@ import Button from '../../../../../components/app/button.jsx';
 import TextArea from '../../../../../components/app/text-area.jsx'; // Imported your custom TextArea component
 import errorMessage from '../../../../../helpers/error-message.js';
 
-const { PROJECT_PENDING_REVIEW, PROJECT_APPROVED, PROJECT_REJECTED } = env;
+const {
+  PROJECT_PENDING_REVIEW,
+  PROJECT_PARTIALLY_APPROVED,
+  PROJECT_APPROVED,
+  PROJECT_REJECTED,
+} = env;
 
 const [getProject, setProject] = createSignal(null);
 
@@ -118,6 +123,9 @@ async function addProjectInfo() {
   if (project.status === PROJECT_PENDING_REVIEW) {
     statusText = 'Aguardando avaliação';
     statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+  } else if (project.status === PROJECT_PARTIALLY_APPROVED) {
+    statusText = 'Parcialmente Aprovado';
+    statusClass = 'bg-teal-100 text-teal-700 border-teal-200';
   } else if (project.status === PROJECT_APPROVED) {
     statusText = 'Aprovado';
     statusClass = 'bg-green-100 text-green-700 border-green-200';
@@ -495,11 +503,23 @@ function ExaminerProjectListDetails() {
               id="evaluationStatus"
               class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 font-medium focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
             >
-              <option value="Approved" class="text-green-600 font-medium">
-                Aprovado (Approved)
+              <option
+                value="Partially approved" // Consumed by backend, do not change
+                class="text-teal-600 font-medium"
+              >
+                Parcialmente Aprovado
               </option>
-              <option value="Rejected" class="text-red-600 font-medium">
-                Reprovado (Rejected)
+              <option
+                value="Approved" // Do not change
+                class="text-green-600 font-medium"
+              >
+                Aprovado
+              </option>
+              <option
+                value="Rejected" // Do not change
+                class="text-red-600 font-medium"
+              >
+                Reprovado
               </option>
             </select>
           </div>

@@ -13,6 +13,7 @@ const {
   PROJECT_TYPE_CONVENTIONAL,
   PROJECT_TYPE_PHOTO,
   PROJECT_PENDING_REVIEW,
+  PROJECT_PARTIALLY_APPROVED,
   PROJECT_APPROVED,
   PROJECT_REJECTED,
 } = env;
@@ -129,6 +130,9 @@ async function addProjectInfo() {
   if (project.status === PROJECT_PENDING_REVIEW) {
     statusText = 'Aguardando avaliação';
     statusClass = 'bg-blue-100 text-blue-700 border-blue-200';
+  } else if (project.status === PROJECT_PARTIALLY_APPROVED) {
+    statusText = 'Parcialmente Aprovado';
+    statusClass = 'bg-teal-100 text-teal-700 border-teal-200';
   } else if (project.status === PROJECT_APPROVED) {
     statusText = 'Aprovado';
     statusClass = 'bg-green-100 text-green-700 border-green-200';
@@ -236,7 +240,8 @@ async function addResubmitListener() {
   // Get project
   const project = getProject();
 
-  if (project.status == PROJECT_REJECTED) {
+  const status = project.status;
+  if (status === PROJECT_PARTIALLY_APPROVED) {
     // Add listener
     const resubmitEl = document.getElementById('resubmit');
     resubmitEl.classList.remove('hidden');

@@ -1,3 +1,4 @@
+import env from '../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../helpers/check-session-jwt.js';
@@ -13,6 +14,8 @@ import InputText from '../../../components/app/input-text.jsx';
 import InputPassword from '../../../components/app/input-password.jsx';
 import Button from '../../../components/app/button.jsx';
 import Divider from '../../../components/app/divider.jsx';
+
+const { SUPPORT_EMAIL } = env;
 
 const [getAccount, setAccount] = createSignal(null);
 
@@ -36,34 +39,34 @@ async function addAccountInfo() {
 
   // Name
   const nameEl = document.getElementById('name');
-  nameEl.textContent = `Nome: ${account.name}`;
+  nameEl.textContent = account.name;
 
   // Institution
   const institutionEl = document.getElementById('institution');
-  institutionEl.textContent = `Instituição: ${account.institution}`;
+  institutionEl.textContent = account.institution;
 
   // Email
   const emailEl = document.getElementById('email');
-  emailEl.textContent = `Email: ${account.email}`;
+  emailEl.textContent = account.email;
 
   // Phone
   const phoneEl = document.getElementById('phone');
-  phoneEl.textContent = `Phone: ${account.phone}`;
+  phoneEl.textContent = account.phone;
 
-  // Number of projects
-  const numProjectsEl = document.getElementById('numProjects');
-  numProjectsEl.textContent = `Número de projetos avaliados: ${account.numProjects}`;
+  // // Number of projects
+  // const numProjectsEl = document.getElementById('numProjects');
+  // numProjectsEl.textContent = account.numProjects;
 
   // Max projects
   const maxProjectsEl = document.getElementById('maxProjects');
-  maxProjectsEl.textContent = `Máximo de projetos: ${account.maxProjects}`;
+  maxProjectsEl.textContent = account.maxProjects;
 
   // Areas
   const areasEl = document.getElementById('areas');
   const accountAreas = account.areas || [];
-  areasEl.textContent = `Áreas de atuação: ${accountAreas.length > 0 ? accountAreas.join(', ') : 'Nenhuma selecionada'}`;
+  areasEl.textContent = `${accountAreas.length > 0 ? accountAreas.join(', ') : 'Nenhuma selecionada'}`;
 
-  // Sincronizar checkboxes do formulário com os dados salvos
+  // Area checkboxes
   areas.forEach((area, index) => {
     const checkboxEl = document.getElementById(`area_${index}`);
     if (checkboxEl) {
@@ -80,6 +83,19 @@ async function addInputListeners() {
   });
 }
 
+async function addDetailsUpdateListener() {
+  const updateDetailsEl = document.querySelector('#updateDetails');
+  updateDetailsEl.addEventListener('click', () => {
+    const detailsFormEl = document.querySelector('#detailsForm');
+    const updatePasswordEl = document.querySelector('#updatePassword');
+    const updateAreasEl = document.querySelector('#updateAreas');
+    updateDetailsEl.classList.add('hidden');
+    detailsFormEl.classList.remove('hidden');
+    updatePasswordEl.classList.add('hidden');
+    updateAreasEl.classList.add('hidden');
+  });
+}
+
 async function addDetailsSubmitListener() {
   const detailsSubmitEl = document.getElementById('submitDetails');
   detailsSubmitEl.addEventListener('click', async (event) => {
@@ -90,7 +106,19 @@ async function addDetailsSubmitListener() {
     const newName = formData.get('newName');
     const newInstitution = formData.get('newInstitution');
     const newPhone = formData.get('newPhone');
-    if (!exists(newName) || !exists(newInstitution) || !exists(newPhone)) {
+    const newMaxProjects = formData.get('newMaxProjects');
+    if (
+      !exists(newName) ||
+      newName === '' ||
+      !exists(newInstitution) ||
+      newInstitution === '' ||
+      !exists(newPhone) ||
+      newPhone === '' ||
+      !exists(newMaxProjects) ||
+      newMaxProjects === '' ||
+      newMaxProjects < 3 ||
+      newMaxProjects > 100
+    ) {
       await Swal.fire({
         title: 'Oops',
         text: 'Por favor verifique os dados.',
@@ -100,11 +128,12 @@ async function addDetailsSubmitListener() {
     }
     const responseJson = await request(
       'PATCH',
-      '/participant',
+      '/examiner',
       {
         name: newName,
         institution: newInstitution,
         phone: newPhone,
+        maxProjects: newMaxProjects,
       },
       true,
     );
@@ -117,32 +146,24 @@ async function addDetailsSubmitListener() {
       window.location.href = '/app/participant/dashboard';
       return null;
     }
-    const account = await readAccount();
-    await addAccountInfo(account);
-    detailsFormEl.classList.add('hidden');
-    const detailsUpdateEl = document.querySelector('#updateDetails');
-    const passwordUpdateEl = document.querySelector('#updatePassword');
-    const areasUpdateEl = document.querySelector('#updateAreas');
-    detailsUpdateEl.classList.remove('hidden');
-    passwordUpdateEl.classList.remove('hidden');
-    areasUpdateEl.classList.remove('hidden');
-    Swal.fire({
+    await Swal.fire({
       title: 'Sucesso',
       text: 'Dados atualizados!',
       confirmButtonText: 'OK',
     });
+    window.location.reload();
   });
 }
 
-async function addDetailsUpdateListener() {
-  const updateDetailsEl = document.querySelector('#updateDetails');
-  updateDetailsEl.addEventListener('click', () => {
-    const detailsFormEl = document.querySelector('#detailsForm');
-    const updatePasswordEl = document.querySelector('#updatePassword');
+async function addPasswordUpdateListener() {
+  const updatePasswordEl = document.querySelector('#updatePassword');
+  updatePasswordEl.addEventListener('click', () => {
+    const passwordFormEl = document.querySelector('#passwordForm');
+    const updateDetailsEl = document.querySelector('#updateDetails');
     const updateAreasEl = document.querySelector('#updateAreas');
-    updateDetailsEl.classList.add('hidden');
-    detailsFormEl.classList.remove('hidden');
     updatePasswordEl.classList.add('hidden');
+    passwordFormEl.classList.remove('hidden');
+    updateDetailsEl.classList.add('hidden');
     updateAreasEl.classList.add('hidden');
   });
 }
@@ -162,8 +183,11 @@ async function addPasswordSubmitListener() {
     const repeatNewPassword = formData.get('repeatNewPassword');
     if (
       !exists(currentPassword) ||
+      currentPassword === '' ||
       !exists(newPassword) ||
-      !exists(repeatNewPassword)
+      newPassword === '' ||
+      !exists(repeatNewPassword) ||
+      repeatNewPassword === ''
     ) {
       await Swal.fire({
         title: 'Oops',
@@ -198,7 +222,7 @@ async function addPasswordSubmitListener() {
     }
     const responseJson = await request(
       'PATCH',
-      '/participant',
+      '/examiner',
       {
         password: newPassword,
       },
@@ -213,31 +237,12 @@ async function addPasswordSubmitListener() {
       window.location.href = '/app/participant/dashboard';
       return null;
     }
-    passwordFormEl.classList.add('hidden');
-    const passwordUpdateEl = document.querySelector('#updatePassword');
-    const detailsUpdateEl = document.querySelector('#updateDetails');
-    const areasUpdateEl = document.querySelector('#updateAreas');
-    passwordUpdateEl.classList.remove('hidden');
-    detailsUpdateEl.classList.remove('hidden');
-    areasUpdateEl.classList.remove('hidden');
     await Swal.fire({
       title: 'Sucesso',
       text: 'Senha atualizada!',
       confirmButtonText: 'OK',
     });
-  });
-}
-
-async function addPasswordUpdateListener() {
-  const updatePasswordEl = document.querySelector('#updatePassword');
-  updatePasswordEl.addEventListener('click', () => {
-    const passwordFormEl = document.querySelector('#passwordForm');
-    const updateDetailsEl = document.querySelector('#updateDetails');
-    const updateAreasEl = document.querySelector('#updateAreas');
-    updatePasswordEl.classList.add('hidden');
-    passwordFormEl.classList.remove('hidden');
-    updateDetailsEl.classList.add('hidden');
-    updateAreasEl.classList.add('hidden');
+    window.location.reload();
   });
 }
 
@@ -268,7 +273,6 @@ async function addAreasSubmitListener() {
         selectedAreas.push(area);
       }
     });
-
     const responseJson = await request(
       'PATCH',
       '/examiner',
@@ -288,24 +292,12 @@ async function addAreasSubmitListener() {
       return null;
     }
 
-    const account = await readAccount();
-    await addAccountInfo(account);
-
-    const areasFormEl = document.querySelector('#areasForm');
-    areasFormEl.classList.add('hidden');
-
-    const detailsUpdateEl = document.querySelector('#updateDetails');
-    const passwordUpdateEl = document.querySelector('#updatePassword');
-    const areasUpdateEl = document.querySelector('#updateAreas');
-    detailsUpdateEl.classList.remove('hidden');
-    passwordUpdateEl.classList.remove('hidden');
-    areasUpdateEl.classList.remove('hidden');
-
     await Swal.fire({
       title: 'Sucesso',
       text: 'Áreas de atuação atualizadas!',
       confirmButtonText: 'OK',
     });
+    window.location.reload();
   });
 }
 
@@ -328,13 +320,24 @@ function ExaminerAccount() {
       <div class="ml-72 m-8">
         {/* Heading */}
         <Heading>Dados da conta</Heading>
-        <P id="name">Nome:</P>
-        <P id="institution">Instituição:</P>
-        <P id="email">Email:</P>
-        <P id="phone">Fone:</P>
-        <P id="numProjects">Número de projetos avaliados:</P>
-        <P id="maxProjects">Máximo de projetos:</P>
-        <P id="areas">Áreas de atuação:</P>
+        <P>
+          Nome: <span id="name"></span>
+        </P>
+        <P>
+          Instituição: <span id="institution"></span>
+        </P>
+        <P>
+          Email: <span id="email"></span>
+        </P>
+        <P>
+          Fone: <span id="phone"></span>
+        </P>
+        <P>
+          Máximo de projetos avaliados: <span id="maxProjects"></span>
+        </P>
+        <P>
+          Áreas de atuação: <span id="areas"></span>
+        </P>
 
         {/* Update details */}
         <Button id="updateDetails" type="button">
@@ -359,6 +362,12 @@ function ExaminerAccount() {
             label="Novo fone *"
             size={11}
             placeholder=""
+          ></InputText>
+          <InputText
+            id="newMaxProjects"
+            label="Novo número máximo de projetos * (3 a 100)"
+            size={3}
+            placeholder="5"
           ></InputText>
           <Button id="submitDetails" type="button">
             Salvar

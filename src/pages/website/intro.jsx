@@ -132,17 +132,17 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/realizator1.jpeg"
+                src="/images/realizators/realizator1.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Realizador 1"
               />
               <img
-                src="/images/realizator2.jpeg"
+                src="/images/realizators/realizator2.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Realizador 2"
               />
               <img
-                src="/images/realizator3.jpeg"
+                src="/images/realizators/realizator3.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Realizador 3"
               />
@@ -174,22 +174,22 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/supporter-1.jpeg"
+                src="/images/supporters/supporter-1.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 1"
               />
               <img
-                src="/images/supporter-2.jpeg"
+                src="/images//supporters/supporter-2.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 2"
               />
               <img
-                src="/images/supporter-3.jpeg"
+                src="/images//supporters/supporter-3.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 3"
               />
               <img
-                src="/images/supporter-4.jpeg"
+                src="/images//supporters/supporter-4.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 4"
               />
@@ -221,12 +221,12 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/sponsor-diamond-1.jpeg"
+                src="/images/sponsors/sponsor-diamond-1.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Diamante 1"
               />
               <img
-                src="/images/sponsor-diamond-2.jpeg"
+                src="/images/sponsors/sponsor-diamond-2.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Diamante 2"
               />
@@ -258,22 +258,22 @@ function Intro(props) {
             {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
             <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
               <img
-                src="/images/sponsor-bronze-1.jpeg"
+                src="/images/sponsors/sponsor-bronze-1.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Bronze 1"
               />
               <img
-                src="/images/sponsor-bronze-2.jpeg"
+                src="/images/sponsors/sponsor-bronze-2.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Bronze 2"
               />
               <img
-                src="/images/sponsor-bronze-3.jpeg"
+                src="/images/sponsors/sponsor-bronze-3.jpeg"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Bronze 3"
               />
               <img
-                src="/images/sponsor-bronze-4.png"
+                src="/images/sponsors/sponsor-bronze-4.png"
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Bronze 4"
               />
