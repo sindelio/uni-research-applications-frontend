@@ -154,7 +154,12 @@ async function addEvaluationInfo() {
     'closeEvaluationModal',
   );
 
-  if (exists(project?.evaluation)) {
+  const projectStatus = project.status;
+  if (
+    projectStatus === PROJECT_PARTIALLY_APPROVED ||
+    projectStatus === PROJECT_APPROVED ||
+    projectStatus === PROJECT_REJECTED
+  ) {
     // Show the view evaluation button since an evaluation exists
     viewEvaluationBtn.classList.remove('hidden');
 
@@ -184,6 +189,50 @@ async function addEvaluationInfo() {
         }
       }
     });
+
+    // Populate criteria scores
+    if (evaluation.score) {
+      document.getElementById('evalScoreRelevancy').textContent =
+        evaluation.score.relevancy !== undefined
+          ? `${evaluation.score.relevancy} / 5`
+          : '-';
+      document.getElementById('evalScoreOriginality').textContent =
+        evaluation.score.originality !== undefined
+          ? `${evaluation.score.originality} / 5`
+          : '-';
+      document.getElementById('evalScoreMethodology').textContent =
+        evaluation.score.methodology !== undefined
+          ? `${evaluation.score.methodology} / 5`
+          : '-';
+      document.getElementById('evalScoreQuality').textContent =
+        evaluation.score.quality !== undefined
+          ? `${evaluation.score.quality} / 5`
+          : '-';
+      document.getElementById('evalScoreImpact').textContent =
+        evaluation.score.impact !== undefined
+          ? `${evaluation.score.impact} / 5`
+          : '-';
+    } else {
+      document.getElementById('evalScoreRelevancy').textContent = '-';
+      document.getElementById('evalScoreOriginality').textContent = '-';
+      document.getElementById('evalScoreMethodology').textContent = '-';
+      document.getElementById('evalScoreQuality').textContent = '-';
+      document.getElementById('evalScoreImpact').textContent = '-';
+    }
+
+    // Populate premium nomination status
+    const premiumNominationEl = document.getElementById(
+      'evalPremiumNomination',
+    );
+    if (premiumNominationEl) {
+      if (evaluation.premiumNomination === true) {
+        premiumNominationEl.textContent = 'Sim';
+        premiumNominationEl.className = 'text-sm font-bold text-amber-600';
+      } else {
+        premiumNominationEl.textContent = 'Não';
+        premiumNominationEl.className = 'text-sm font-semibold text-gray-500';
+      }
+    }
 
     // Populate commentaries and caveats text content
     document.getElementById('evalCommentaries').textContent =
@@ -379,7 +428,7 @@ function ParticipantProjectListDetails() {
                 Baixar Foto
               </Button>
 
-              {/* Evaluation View Action & Modal Window (Placed Exactly Here) */}
+              {/* Evaluation View Action & Modal Window */}
               <Button
                 id="viewEvaluation"
                 inputClass="hidden bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2"
@@ -456,6 +505,64 @@ function ParticipantProjectListDetails() {
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
                       <span class="font-medium text-gray-600">Banner:</span>
                       <span id="evalBanner"></span>
+                    </div>
+                  </div>
+
+                  {/* Criteria Scores Section */}
+                  <div class="pt-2 border-t border-gray-100">
+                    <label class="text-xs font-bold uppercase tracking-wider text-purple-600 block mb-2">
+                      Notas por Critério (0 a 5)
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                        <span class="font-medium text-gray-600">
+                          Relevância:
+                        </span>
+                        <span
+                          id="evalScoreRelevancy"
+                          class="font-semibold text-gray-800"
+                        ></span>
+                      </div>
+                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                        <span class="font-medium text-gray-600">
+                          Originalidade:
+                        </span>
+                        <span
+                          id="evalScoreOriginality"
+                          class="font-semibold text-gray-800"
+                        ></span>
+                      </div>
+                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                        <span class="font-medium text-gray-600">
+                          Metodologia:
+                        </span>
+                        <span
+                          id="evalScoreMethodology"
+                          class="font-semibold text-gray-800"
+                        ></span>
+                      </div>
+                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                        <span class="font-medium text-gray-600">
+                          Qualidade:
+                        </span>
+                        <span
+                          id="evalScoreQuality"
+                          class="font-semibold text-gray-800"
+                        ></span>
+                      </div>
+                      <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                        <span class="font-medium text-gray-600">Impacto:</span>
+                        <span
+                          id="evalScoreImpact"
+                          class="font-semibold text-gray-800"
+                        ></span>
+                      </div>
+                      <div class="flex items-center justify-between p-2 bg-amber-50/60 rounded border border-amber-200">
+                        <span class="font-medium text-amber-800 font-semibold">
+                          Indicação ao Prêmio:
+                        </span>
+                        <span id="evalPremiumNomination"></span>
+                      </div>
                     </div>
                   </div>
 

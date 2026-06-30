@@ -16,7 +16,7 @@ import TextArea from '../../../../components/app/text-area.jsx';
 import errorMessage from '../../../../helpers/error-message.js';
 
 const {
-  PROJECT_WAITING_EXAMINER,
+  PROJECT_STATUS_PENDING_REVIEW,
   PROJECT_TYPE_CONVENTIONAL,
   PROJECT_TYPE_PHOTO,
 } = env;
@@ -556,7 +556,7 @@ async function addSubmitListener() {
     if (exists(project)) {
       httpMethod = 'PATCH';
       url = `/participant/project?projectId=${project._id}`;
-      payload.status = PROJECT_WAITING_EXAMINER;
+      payload.status = PROJECT_STATUS_PENDING_REVIEW;
     }
 
     // Send request

@@ -1,7 +1,6 @@
 import env from '../../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
-import exists from '../../../../../helpers/exists.js';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
@@ -157,6 +156,10 @@ async function addBackListener() {
   });
 }
 
+async function addEvaluationInfo() {
+  // TODO: AKIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+}
+
 async function addEvaluationListeners() {
   // Get project
   const project = getProject();
@@ -193,6 +196,23 @@ async function addEvaluationListeners() {
       references: document.getElementById('evaluationReferences').checked,
       projectType: document.getElementById('evaluationProjectType').checked, // Uses fixed 'projectType' key to avoid Mongoose conflict
       banner: document.getElementById('evaluationBanner').checked,
+      premiumNomination: document.getElementById('evaluationPremiumNomination')
+        .checked,
+      score: {
+        relevancy: Number(
+          document.getElementById('evaluationScoreRelevancy').value,
+        ),
+        originality: Number(
+          document.getElementById('evaluationScoreOriginality').value,
+        ),
+        methodology: Number(
+          document.getElementById('evaluationScoreMethodology').value,
+        ),
+        quality: Number(
+          document.getElementById('evaluationScoreQuality').value,
+        ),
+        impact: Number(document.getElementById('evaluationScoreImpact').value),
+      },
       commentaries: document.getElementById('evaluationCommentaries').value,
       caveats: document.getElementById('evaluationCaveats').value,
     };
@@ -335,7 +355,7 @@ function ExaminerProjectListDetails() {
             </div>
 
             <div class="flex flex-wrap items-center gap-4">
-              {/* Evaluate Trigger Button */}
+              {/* Start evaluation button */}
               <Button
                 id="openEvaluation"
                 inputClass="hidden bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2"
@@ -349,6 +369,22 @@ function ExaminerProjectListDetails() {
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
                 Avaliar Projeto
+              </Button>
+
+              {/* Show existing evaluation button */}
+              <Button
+                id="viewEvaluation"
+                inputClass="hidden bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Ver avaliação
               </Button>
 
               {/* Download button */}
@@ -494,34 +530,140 @@ function ExaminerProjectListDetails() {
 
           <hr class="border-gray-100" />
 
-          {/* Status Toggle */}
-          <div class="w-full max-w-xs">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Decisão Final
-            </label>
-            <select
-              id="evaluationStatus"
-              class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 font-medium focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
-            >
-              <option
-                value="Partially approved" // Consumed by backend, do not change
-                class="text-teal-600 font-medium"
+          {/* Scores Section (0 to 5) */}
+          <div>
+            <p class="text-sm font-semibold text-gray-700 mb-3">
+              Notas por Critério (0 a 5):
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">
+                  Relevância
+                </label>
+                <select
+                  id="evaluationScoreRelevancy"
+                  class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">
+                  Originalidade
+                </label>
+                <select
+                  id="evaluationScoreOriginality"
+                  class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">
+                  Metodologia
+                </label>
+                <select
+                  id="evaluationScoreMethodology"
+                  class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">
+                  Qualidade
+                </label>
+                <select
+                  id="evaluationScoreQuality"
+                  class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">
+                  Impacto
+                </label>
+                <select
+                  id="evaluationScoreImpact"
+                  class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
+                >
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-gray-100" />
+
+          {/* Status Toggle & Premium Nomination */}
+          <div class="flex flex-col sm:flex-row sm:items-end gap-6">
+            <div class="w-full max-w-xs">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Decisão Final
+              </label>
+              <select
+                id="evaluationStatus"
+                class="w-full border border-gray-300 rounded-lg p-2 bg-white text-gray-800 font-medium focus:outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600"
               >
-                Parcialmente Aprovado
-              </option>
-              <option
-                value="Approved" // Do not change
-                class="text-green-600 font-medium"
-              >
-                Aprovado
-              </option>
-              <option
-                value="Rejected" // Do not change
-                class="text-red-600 font-medium"
-              >
-                Reprovado
-              </option>
-            </select>
+                <option
+                  value="Partially approved" // Consumed by backend, do not change
+                  class="text-teal-600 font-medium"
+                >
+                  Parcialmente Aprovado
+                </option>
+                <option
+                  value="Approved" // Do not change
+                  class="text-green-600 font-medium"
+                >
+                  Aprovado
+                </option>
+                <option
+                  value="Rejected" // Do not change
+                  class="text-red-600 font-medium"
+                >
+                  Reprovado
+                </option>
+              </select>
+            </div>
+
+            <div class="flex items-center h-11">
+              <label class="flex items-center gap-3 cursor-pointer p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="evaluationPremiumNomination"
+                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
+                />
+                <span class="text-sm font-semibold text-purple-900">
+                  Indicar ao Prêmio
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Text Areas */}
