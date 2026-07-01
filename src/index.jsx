@@ -14,6 +14,9 @@ import PasswordReset from './pages/app/password-reset.jsx';
 import Support from './pages/app/support.jsx';
 import AdminDashboard from './pages/app/admin/dashboard.jsx';
 import AdminAccount from './pages/app/admin/account.jsx';
+import AdminProject from './pages/app/admin/project.jsx';
+import AdminProjectList from './pages/app/admin/project/list.jsx';
+import AdminProjectListDetails from './pages/app/admin/project/list/details.jsx';
 import ExaminerDashboard from './pages/app/examiner/dashboard.jsx';
 import ExaminerAccount from './pages/app/examiner/account.jsx';
 import ExaminerProject from './pages/app/examiner/project.jsx';
@@ -63,16 +66,16 @@ render(
         {/* Admin routes */}
         <Route path="/admin">
           <Route path="/dashboard" component={AdminDashboard}></Route>
-          {/* <Route path="/project">
-            <Route path="/" component={ExaminerProject}></Route>
+          <Route path="/project">
+            <Route path="/" component={AdminProject}></Route>
             <Route path="/list">
-              <Route path="/" component={ExaminerProjectList}></Route>
+              <Route path="/" component={AdminProjectList}></Route>
               <Route
                 path="/details"
-                component={ExaminerProjectListDetails}
+                component={AdminProjectListDetails}
               ></Route>
             </Route>
-          </Route> */}
+          </Route>
           <Route path="/account" component={AdminAccount}></Route>
         </Route>
 

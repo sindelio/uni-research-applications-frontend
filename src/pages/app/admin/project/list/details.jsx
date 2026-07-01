@@ -3,6 +3,7 @@ import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
+import validateEmail from '../../../../../helpers/validate-email.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
@@ -10,8 +11,7 @@ import errorMessage from '../../../../../helpers/error-message.js';
 
 const {
   LOCAL_STORAGE_USER_TYPE,
-  PROJECT_TYPE_CONVENTIONAL,
-  PROJECT_TYPE_PHOTO,
+  PROJECT_WAITING_EXAMINER,
   PROJECT_PENDING_REVIEW,
   PROJECT_PARTIALLY_APPROVED,
   PROJECT_APPROVED,
@@ -26,7 +26,7 @@ async function readProject() {
   const projectId = urlParams.get('projectId');
   const responseJson = await request(
     'GET',
-    `/participant/project?projectId=${projectId}`,
+    `/${userType}/project?projectId=${projectId}`,
     null,
     true,
   );
@@ -36,21 +36,20 @@ async function readProject() {
       text: errorMessage,
       confirmButtonText: 'OK',
     });
-    window.location.href = '/app/participant/dashboard';
+    window.location.href = `/app/${userType}/dashboard`;
     return null;
   }
   const project = responseJson.data;
   setProject(project);
 }
 
-// Helper to handle Buffer download
 function downloadBuffer(bufferObj, fileName) {
   const bytes = new Uint8Array(bufferObj.data.data);
   const blob = new Blob([bytes], { type: 'application/octet-stream' });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = fileName || 'foto-projeto';
+  link.download = fileName || 'banner-projeto';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -64,7 +63,7 @@ async function addProjectInfo() {
   // Title
   document.getElementById('title').textContent = project?.title || '-';
 
-  // Status Badge Logic
+  // Status
   const statusEl = document.getElementById('status');
   let statusText = 'Aguardando avaliador';
   let statusClass = 'bg-amber-100 text-amber-700 border-amber-200';
@@ -84,20 +83,15 @@ async function addProjectInfo() {
   statusEl.textContent = statusText;
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
-  // Authors (Array of Objects)
-  const authorsContainer = document.getElementById('authorsList');
-  authorsContainer.innerHTML = ''; // Clear
+  // Authors
+  const authorsEl = document.getElementById('authors-list');
+  authorsEl.innerHTML = '';
   project.authors.forEach((author) => {
-    const authorName = author?.name || '';
-    const authorInstitution = author?.institution || '';
-    const authorCity = author?.city || '';
-    const authorState = author?.state || '';
     const span = document.createElement('span');
-    keywordsList;
     span.className =
       'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
-    span.textContent = `${authorName} (${authorInstitution} - ${authorCity}/${authorState})`;
-    authorsContainer.appendChild(span);
+    span.textContent = `${author.name} — ${author.institution}`;
+    authorsEl.appendChild(span);
   });
 
   // Areas
@@ -105,7 +99,7 @@ async function addProjectInfo() {
   areasEl.textContent = project.areas.join(', ');
 
   // Keywords
-  const keywordsContainer = document.getElementById('keywordsList');
+  const keywordsContainer = document.getElementById('keywords-list');
   keywordsContainer.innerHTML = '';
   if (project.keywords && project.keywords.length > 0) {
     project.keywords.forEach((keyword) => {
@@ -131,7 +125,7 @@ async function addProjectInfo() {
     project?.createdAt?.readableDate || '-';
 
   // References
-  const referencesContainer = document.getElementById('referencesList');
+  const referencesContainer = document.getElementById('references-list');
   referencesContainer.innerHTML = '';
   if (project.references && project.references.length > 0) {
     project.references.forEach((reference) => {
@@ -142,6 +136,27 @@ async function addProjectInfo() {
     });
   } else {
     referencesContainer.textContent = '-';
+  }
+
+  // Suggested examiner
+  document.getElementById('suggestedExaminerEmail').textContent =
+    project?.suggestedExaminerEmail || '-';
+
+  // Allocated examiner
+  document.getElementById('allocatedExaminer').textContent =
+    project?.examinerEmail || '-';
+
+  // Download
+  const downloadEl = document.getElementById('downloadBanner');
+  if (project.bannerFile?.isSubmitted) {
+    downloadEl.addEventListener('click', () => {
+      downloadBuffer(
+        project.bannerFile,
+        `banner_${project.title.replace(/\s+/g, '_')}`,
+      );
+    });
+  } else {
+    downloadEl.classList.add('hidden');
   }
 }
 
@@ -262,43 +277,77 @@ async function addEvaluationInfo() {
   }
 }
 
-async function addDownloadListener() {
-  // Get project
+async function addExaminerAllocationListener() {
   const project = getProject();
-  const { projectType } = project;
+  const { status } = project;
 
-  // Download Banner Listener
-  const downloadEl = document.getElementById('downloadPhoto');
-
-  // Show download button is project is photografic
-  if (projectType === PROJECT_TYPE_PHOTO) {
-    downloadEl.classList.remove('hidden');
+  if (status !== PROJECT_WAITING_EXAMINER) {
+    return;
   }
 
-  // Add click listener
-  if (project.photoFile?.isSubmitted) {
-    downloadEl.addEventListener('click', () => {
-      downloadBuffer(
-        project.photoFile,
-        `foto_${project.title.replace(/\s+/g, '_')}`,
-      );
+  // Elements
+  const allocateExaminerBtn = document.getElementById('allocateExaminerBtn');
+  const allocateInputContainer = document.getElementById(
+    'allocateInputContainer',
+  );
+  const closeAllocateModalBtn = document.getElementById('closeAllocateModal');
+
+  // Button click listener
+  allocateExaminerBtn.classList.remove('hidden');
+  allocateExaminerBtn.addEventListener('click', () => {
+    allocateInputContainer.classList.remove('hidden');
+  });
+
+  // Modal listener
+  closeAllocateModalBtn.addEventListener('click', () => {
+    allocateInputContainer.classList.add('hidden');
+  });
+
+  // Input listener
+  allocateInputContainer.addEventListener('click', (event) => {
+    if (event.target === allocateInputContainer) {
+      allocateInputContainer.classList.add('hidden');
+    }
+  });
+
+  // Confirmation listener
+  const confirmAllocateBtn = document.getElementById('confirmAllocateBtn');
+  confirmAllocateBtn.addEventListener('click', async () => {
+    const examinerEmail = document.getElementById('examinerEmail').value;
+
+    if (!validateEmail(examinerEmail)) {
+      await Swal.fire({
+        title: 'Oops',
+        text: 'Por favor, verifique o e-mail do avaliador.',
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    const project = getProject();
+    const projectId = project._id;
+
+    const responseJson = await request(
+      'POST',
+      `/${userType}/allocate-examiner-to-project?projectId=${projectId}`,
+      { examinerEmail },
+      true,
+    );
+    if (responseJson.error !== null) {
+      await Swal.fire({
+        title: 'Oops',
+        text: responseJson?.error?.message || errorMessage,
+        confirmButtonText: 'OK',
+      });
+      return null;
+    }
+    await Swal.fire({
+      title: 'Sucesso',
+      text: 'Avaliador alocado para o projeto!',
+      confirmButtonText: 'OK',
     });
-  }
-}
-
-async function addResubmitListener() {
-  // Get project
-  const project = getProject();
-
-  const status = project.status;
-  if (status === PROJECT_PARTIALLY_APPROVED) {
-    // Add listener
-    const resubmitEl = document.getElementById('resubmit');
-    resubmitEl.classList.remove('hidden');
-    resubmitEl.addEventListener('click', () => {
-      window.location.href = `/app/participant/project/create?projectId=${project._id}`;
-    });
-  }
+    window.location.reload();
+  });
 }
 
 async function addBackListener() {
@@ -308,25 +357,25 @@ async function addBackListener() {
   });
 }
 
-function ParticipantProjectListDetails() {
+function AdminProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
     await readProject();
     await addProjectInfo();
-    await addDownloadListener();
     await addEvaluationInfo();
-    await addResubmitListener();
     await addBackListener();
+    await addExaminerAllocationListener();
   });
 
   return (
     <div class="flex flex-row min-h-screen bg-gray-50 text-gray-800">
       <Navbar />
-      <div class="ml-72 m-8 w-full max-w-4xl">
+      <div class="ml-72 m-8 w-full max-w-4xl space-y-6">
         <div class="flex justify-between items-center mb-6">
           <Heading>Detalhes do Projeto</Heading>
         </div>
 
+        {/* Project View Card */}
         <div class="bg-white shadow-sm border border-gray-200 rounded-xl p-8 space-y-6">
           {/* Main Info */}
           <section>
@@ -349,14 +398,12 @@ function ParticipantProjectListDetails() {
             </section>
           </div>
 
-          <hr class="border-gray-100" />
-
           {/* Authors */}
           <section>
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
               Equipe de Autores
             </label>
-            <div id="authorsList" class="mt-2 flex flex-wrap gap-2"></div>
+            <div id="authors-list" class="mt-2 flex flex-wrap gap-2"></div>
           </section>
 
           {/* Areas */}
@@ -372,7 +419,7 @@ function ParticipantProjectListDetails() {
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
               Palavras-chave
             </label>
-            <div id="keywordsList" class="mt-2 flex flex-wrap gap-2"></div>
+            <div id="keywords-list" class="mt-2 flex flex-wrap gap-2"></div>
           </section>
           <hr class="border-gray-100" />
 
@@ -393,10 +440,32 @@ function ParticipantProjectListDetails() {
               Referências Bibliográficas
             </label>
             <ol
-              id="referencesList"
+              id="references-list"
               class="mt-2 space-y-1 list-decimal list-inside text-gray-700"
             ></ol>
           </section>
+
+          {/* Examiners Information */}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section>
+              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Avaliador Sugerido
+              </label>
+              <p
+                id="suggestedExaminerEmail"
+                class="mt-1 font-medium text-gray-700"
+              ></p>
+            </section>
+            <section>
+              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Avaliador Alocado
+              </label>
+              <p
+                id="allocatedExaminer"
+                class="mt-1 font-medium text-gray-700"
+              ></p>
+            </section>
+          </div>
 
           <hr class="border-gray-100" />
 
@@ -408,27 +477,7 @@ function ParticipantProjectListDetails() {
               </p>
             </div>
 
-            <div class="flex flex-row items-center text-center gap-4">
-              {/* Download button */}
-              <Button
-                id="downloadPhoto"
-                inputClass="hidden bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-                Baixar Foto
-              </Button>
-
+            <div class="flex flex-wrap items-center gap-4">
               {/* Evaluation View Action & Modal Window */}
               <Button
                 id="viewEvaluation"
@@ -448,7 +497,6 @@ function ParticipantProjectListDetails() {
                 </svg>
                 Ver Avaliação
               </Button>
-
               <div
                 id="evaluationModal"
                 class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4"
@@ -591,9 +639,10 @@ function ParticipantProjectListDetails() {
                 </div>
               </div>
 
+              {/* Download button */}
               <Button
-                id="resubmit"
-                inputClass="hidden bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 flex items-center gap-2"
+                id="downloadBanner"
+                inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -603,12 +652,72 @@ function ParticipantProjectListDetails() {
                 >
                   <path
                     fill-rule="evenodd"
-                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.255.658 5.002 5.002 0 009.736 1.285H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.272z"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
                     clip-rule="evenodd"
                   />
                 </svg>
-                Editar e ressubmeter
+                Baixar Banner
               </Button>
+
+              {/* Allocate examiner section */}
+              <div class="flex items-center gap-2">
+                <Button
+                  id="allocateExaminerBtn"
+                  inputClass="hidden bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                  </svg>
+                  Alocar Avaliador
+                </Button>
+
+                {/* Allocate Examiner Modal Window */}
+                <div
+                  id="allocateInputContainer"
+                  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4"
+                >
+                  <div class="bg-white rounded-xl p-6 max-w-md w-full space-y-4 shadow-2xl border border-gray-100 text-left">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                      <h3 class="text-lg font-bold text-gray-900">
+                        Alocar Avaliador ao Projeto
+                      </h3>
+                      <button
+                        id="closeAllocateModal"
+                        type="button"
+                        class="text-gray-400 hover:text-gray-600 font-bold text-2xl transition-colors"
+                      >
+                        &times;
+                      </button>
+                    </div>
+
+                    <div class="space-y-1.5">
+                      <label class="text-xs font-bold uppercase tracking-wider text-gray-500 block">
+                        E-mail do avaliador
+                      </label>
+                      <input
+                        type="email"
+                        id="examinerEmail"
+                        class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-purple-600 w-full"
+                        placeholder="Ex: avaliador@email.com"
+                      />
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                      <Button
+                        id="confirmAllocateBtn"
+                        inputClass="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
+                      >
+                        Confirmar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Back button */}
               <Button
@@ -637,4 +746,4 @@ function ParticipantProjectListDetails() {
   );
 }
 
-export default ParticipantProjectListDetails;
+export default AdminProjectListDetails;
