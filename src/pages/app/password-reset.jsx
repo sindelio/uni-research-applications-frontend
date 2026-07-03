@@ -155,7 +155,7 @@ function PasswordReset() {
             </form>
             <hr class="w-[90%] h-[0.15rem] mx-auto my-6 bg-purple-400 rounded-2xl"></hr>
             <div class="mt-2 mb-6 flex flex-row justify-center">
-              <Anchor href="/signin" inputClass="my-0 text-sm">
+              <Anchor href="/app/signin" inputClass="my-0 text-sm">
                 Sign in
               </Anchor>
             </div>

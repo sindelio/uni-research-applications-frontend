@@ -324,7 +324,10 @@ async function addReceiptSubmitListener() {
 
       // Extract participant name
       // Capture the text between "ATESTAMOS QUE" and "EFETUOU"
-      const nameMatch = extractedText.match(/ATESTAMOS QUE\s+(.+?)\s+EFETUOU/);
+      let nameMatch = extractedText.match(/ATESTAMOS QUE\s+(.+?)\s+EFETUOU/);
+      if (!nameMatch) {
+        nameMatch = extractedText.match(/FINS QUE\s+(.+?)\s+EFETUOU/);
+      }
 
       if (nameMatch && nameMatch[1]) {
         nameOnFile = nameMatch[1].trim();

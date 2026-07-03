@@ -516,12 +516,12 @@ async function addSubmitListener() {
       });
       return null;
     }
-    // Only validate the document if the project is Fotográfico
+    // Only validate the photo if the project is Fotográfico
     if (projectType === PROJECT_TYPE_PHOTO) {
       if (!exists(photoFile)) {
         await Swal.fire({
           title: 'Oops',
-          text: 'Verifique o arquivo (WORD) do projeto.',
+          text: 'Verifique a foto.',
           confirmButtonText: 'OK',
         });
         return null;
@@ -548,7 +548,7 @@ async function addSubmitListener() {
       summary,
       references,
       projectType,
-      photoFile64Encoded, // Contains the Base64 representation of the Word file
+      photoFile64Encoded, // This is now a long string
     };
 
     // If resubmitting
@@ -748,12 +748,12 @@ function ParticipantProjectCreate() {
           </div>
 
           <div id="projectPhoto" class="hidden mb-6">
-            <p class="mb-2">Arquivo do Projeto (Word) *</p>
+            <p class="mb-2">Foto do Projeto (imagem) *</p>
             <input
               type="file"
               id="photoFile"
               name="photoFile"
-              accept=".doc,.docx"
+              accept="application/image/*"
               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
             />
           </div>
