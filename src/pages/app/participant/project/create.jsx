@@ -439,9 +439,9 @@ async function addSubmitListener() {
 
     // Photo file
     const photoEl = document.getElementById('photoFile');
-    const photoFile = photoEl.files;
+    const photoFile = photoEl.files[0];
 
-    // Check input
+    // Check title
     if (!exists(title) || title?.length < 3 || title?.length > 500) {
       await Swal.fire({
         title: 'Oops',
@@ -450,6 +450,8 @@ async function addSubmitListener() {
       });
       return null;
     }
+
+    // Check authors
     if (authors.length < 1) {
       await Swal.fire({
         title: 'Oops',
@@ -473,6 +475,8 @@ async function addSubmitListener() {
         return null;
       }
     }
+
+    // Check keywords
     if (keywords.length < 3 || keywords.length > 5) {
       await Swal.fire({
         title: 'Oops',
@@ -492,14 +496,37 @@ async function addSubmitListener() {
         return null;
       }
     }
-    if (!exists(summary) || summary?.length < 3 || summary?.length > 2450) {
-      await Swal.fire({
-        title: 'Oops',
-        text: 'Verifique o resumo.',
-        confirmButtonText: 'OK',
-      });
-      return null;
+
+    // Check summary
+    if (projectType === PROJECT_TYPE_CONVENTIONAL) {
+      if (
+        !exists(summary) ||
+        summary?.length < 1750 ||
+        summary?.length > 2450
+      ) {
+        await Swal.fire({
+          title: 'Oops',
+          text: 'Verifique o resumo.',
+          confirmButtonText: 'OK',
+        });
+        return null;
+      }
+    } else if (projectType === PROJECT_TYPE_PHOTO) {
+      if (
+        !exists(summary) ||
+        summary?.length < 1500 ||
+        summary?.length > 2100
+      ) {
+        await Swal.fire({
+          title: 'Oops',
+          text: 'Verifique o resumo.',
+          confirmButtonText: 'OK',
+        });
+        return null;
+      }
     }
+
+    // Check references
     if (references.length < 1) {
       await Swal.fire({
         title: 'Oops',
@@ -508,6 +535,8 @@ async function addSubmitListener() {
       });
       return null;
     }
+
+    // Check areas
     if (areas.length < 1) {
       await Swal.fire({
         title: 'Oops',
@@ -516,7 +545,8 @@ async function addSubmitListener() {
       });
       return null;
     }
-    // Only validate the document if the project is Fotográfico
+
+    // Only validate the document if the project type is "Fotográfico"
     if (projectType === PROJECT_TYPE_PHOTO) {
       if (!exists(photoFile)) {
         await Swal.fire({
@@ -530,9 +560,9 @@ async function addSubmitListener() {
 
     let photoFile64Encoded = '';
     if (projectType === PROJECT_TYPE_PHOTO) {
-      // Check if file exists
+      // Check if the file exists and is valid
       if (exists(photoFile)) {
-        // Convert the file to a Base64
+        // Convert the file object to a Base64 string
         photoFile64Encoded = await toBase64(photoFile);
       }
     }
@@ -691,14 +721,24 @@ function ParticipantProjectCreate() {
           <div id="keywords" class="flex flex-wrap gap-2 mb-8"></div>
 
           {/* Summary */}
-          <TextArea
-            id="summary"
-            label="Resumo * (max 2450 caracteres)"
-            placeholder="Resumo do projeto .."
-            rows={8}
-            cols={48}
-            maxlength={2450}
-          ></TextArea>
+          <div>
+            <p class="flex">
+              Resumo * <br />
+              (1750 a 2450 caracteres para projetos convencionais)
+              <br />
+              (1500 a 2100 caracteres para projetos fotográficos)
+            </p>
+            <textarea
+              id="summary"
+              name="summary"
+              class="mt-2 mb-6 p-4 border border-purple-400 rounded-lg focus:outline-purple-600"
+              placeholder="Resumo do projeto .."
+              rows={8}
+              cols={48}
+              maxlength={2450}
+              style={{ resize: 'none' }}
+            ></textarea>
+          </div>
 
           {/* References */}
           <div>

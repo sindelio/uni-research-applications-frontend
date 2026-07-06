@@ -3,6 +3,7 @@ import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
+import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
@@ -42,19 +43,6 @@ async function readProject() {
   setProject(project);
 }
 
-function downloadBuffer(bufferObj, fileName) {
-  const bytes = new Uint8Array(bufferObj.data.data);
-  const blob = new Blob([bytes], { type: 'application/octet-stream' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName || 'banner-projeto';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-}
-
 async function addProjectInfo() {
   // Get project
   const project = getProject();
@@ -62,16 +50,16 @@ async function addProjectInfo() {
   // Title
   document.getElementById('title').textContent = project?.title || '-';
 
-  // Authors
-  const authorsEl = document.getElementById('authors-list');
-  authorsEl.innerHTML = '';
-  project.authors.forEach((author) => {
-    const span = document.createElement('span');
-    span.className =
-      'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
-    span.textContent = `${author.name} — ${author.institution}`;
-    authorsEl.appendChild(span);
-  });
+  // // Authors
+  // const authorsEl = document.getElementById('authors-list');
+  // authorsEl.innerHTML = '';
+  // project.authors.forEach((author) => {
+  //   const span = document.createElement('span');
+  //   span.className =
+  //     'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
+  //   span.textContent = `${author.name} — ${author.institution}`;
+  //   authorsEl.appendChild(span);
+  // });
 
   // Areas
   const areasEl = document.getElementById('areas');
@@ -138,16 +126,13 @@ async function addProjectInfo() {
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
   // Download
-  const downloadEl = document.getElementById('downloadBanner');
-  if (project.bannerFile?.isSubmitted) {
+  if (project.photoFile?.isSubmitted) {
+    const downloadEl = document.getElementById('downloadFile');
+    downloadEl.classList.remove('hidden');
     downloadEl.addEventListener('click', () => {
-      downloadBuffer(
-        project.bannerFile,
-        `banner_${project.title.replace(/\s+/g, '_')}`,
-      );
+      const fileName = `projeto_${project.title.replace(/\s+/g, '_')}.docx`;
+      downloadBuffer(project.photoFile, fileName);
     });
-  } else {
-    downloadEl.classList.add('hidden');
   }
 }
 
@@ -414,7 +399,7 @@ function ExaminerProjectListDetails() {
           <hr class="border-gray-100" />
 
           {/* Authors */}
-          <section>
+          <section class="hidden">
             <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
               Equipe de Autores
             </label>
@@ -651,8 +636,8 @@ function ExaminerProjectListDetails() {
 
               {/* Download button */}
               <Button
-                id="downloadBanner"
-                inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+                id="downloadFile"
+                inputClass="hidden bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -666,7 +651,7 @@ function ExaminerProjectListDetails() {
                     clip-rule="evenodd"
                   />
                 </svg>
-                Baixar Banner
+                Baixar Arquivo
               </Button>
 
               {/* Back button */}

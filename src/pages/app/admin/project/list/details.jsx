@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
 import validateEmail from '../../../../../helpers/validate-email.js';
+import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
@@ -41,19 +42,6 @@ async function readProject() {
   }
   const project = responseJson.data;
   setProject(project);
-}
-
-function downloadBuffer(bufferObj, fileName) {
-  const bytes = new Uint8Array(bufferObj.data.data);
-  const blob = new Blob([bytes], { type: 'application/octet-stream' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName || 'banner-projeto';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
 }
 
 async function addProjectInfo() {
@@ -147,16 +135,13 @@ async function addProjectInfo() {
     project?.examinerEmail || '-';
 
   // Download
-  const downloadEl = document.getElementById('downloadBanner');
-  if (project.bannerFile?.isSubmitted) {
+  if (project.photoFile?.isSubmitted) {
+    const downloadEl = document.getElementById('downloadFile');
+    downloadEl.classList.remove('hidden');
     downloadEl.addEventListener('click', () => {
-      downloadBuffer(
-        project.bannerFile,
-        `banner_${project.title.replace(/\s+/g, '_')}`,
-      );
+      const fileName = `projeto_${project.title.replace(/\s+/g, '_')}.docx`;
+      downloadBuffer(project.photoFile, fileName);
     });
-  } else {
-    downloadEl.classList.add('hidden');
   }
 }
 
@@ -641,7 +626,7 @@ function AdminProjectListDetails() {
 
               {/* Download button */}
               <Button
-                id="downloadBanner"
+                id="downloadFile"
                 inputClass="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg
@@ -656,7 +641,7 @@ function AdminProjectListDetails() {
                     clip-rule="evenodd"
                   />
                 </svg>
-                Baixar Banner
+                Baixar Arquivo
               </Button>
 
               {/* Allocate examiner section */}

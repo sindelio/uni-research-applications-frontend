@@ -3,6 +3,7 @@ import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
 import request from '../../../../../helpers/request.js';
+import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
@@ -41,20 +42,6 @@ async function readProject() {
   }
   const project = responseJson.data;
   setProject(project);
-}
-
-// Helper to handle Buffer download
-function downloadBuffer(bufferObj, fileName) {
-  const bytes = new Uint8Array(bufferObj.data.data);
-  const blob = new Blob([bytes], { type: 'application/octet-stream' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName || 'foto-projeto';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
 }
 
 async function addProjectInfo() {
@@ -191,6 +178,7 @@ async function addEvaluationInfo() {
       }
     });
 
+    /*
     // Populate criteria scores
     if (evaluation.score) {
       document.getElementById('evalScoreRelevancy').textContent =
@@ -220,6 +208,7 @@ async function addEvaluationInfo() {
       document.getElementById('evalScoreQuality').textContent = '-';
       document.getElementById('evalScoreImpact').textContent = '-';
     }
+    */
 
     // Populate premium nomination status
     const premiumNominationEl = document.getElementById(
@@ -268,7 +257,7 @@ async function addDownloadListener() {
   const { projectType } = project;
 
   // Download Banner Listener
-  const downloadEl = document.getElementById('downloadPhoto');
+  const downloadEl = document.getElementById('downloadFile');
 
   // Show download button is project is photografic
   if (projectType === PROJECT_TYPE_PHOTO) {
@@ -278,10 +267,8 @@ async function addDownloadListener() {
   // Add click listener
   if (project.photoFile?.isSubmitted) {
     downloadEl.addEventListener('click', () => {
-      downloadBuffer(
-        project.photoFile,
-        `foto_${project.title.replace(/\s+/g, '_')}`,
-      );
+      const fileName = `projeto_${project.title.replace(/\s+/g, '_')}.docx`;
+      downloadBuffer(project.photoFile, fileName);
     });
   }
 }
@@ -411,7 +398,7 @@ function ParticipantProjectListDetails() {
             <div class="flex flex-row items-center text-center gap-4">
               {/* Download button */}
               <Button
-                id="downloadPhoto"
+                id="downloadFile"
                 inputClass="hidden bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <svg
@@ -426,7 +413,7 @@ function ParticipantProjectListDetails() {
                     clip-rule="evenodd"
                   />
                 </svg>
-                Baixar Foto
+                Baixar Arquivo
               </Button>
 
               {/* Evaluation View Action & Modal Window */}
@@ -449,6 +436,7 @@ function ParticipantProjectListDetails() {
                 Ver Avaliação
               </Button>
 
+              {/* Evaluation modal */}
               <div
                 id="evaluationModal"
                 class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4"
@@ -510,7 +498,7 @@ function ParticipantProjectListDetails() {
                   </div>
 
                   {/* Criteria Scores Section */}
-                  <div class="pt-2 border-t border-gray-100">
+                  <div class="hidden pt-2 border-t border-gray-100">
                     <label class="text-xs font-bold uppercase tracking-wider text-purple-600 block mb-2">
                       Notas por Critério (0 a 5)
                     </label>
