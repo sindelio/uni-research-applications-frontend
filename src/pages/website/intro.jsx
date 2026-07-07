@@ -235,6 +235,38 @@ function Intro(props) {
         </div>
       </section>
 
+      {/* SPONSORS GOLD */}
+      <section
+        id="sponsorsGold"
+        class="grid grid-cols-1 md:grid-cols-5 text-gray-800 text-center p-6"
+      >
+        {/* Heading spans all columns */}
+        <h1 class="text-[1.875rem] md:text-5xl col-span-full text-gray-800 my-2 font-bold">
+          Patrocinadores Ouro
+        </h1>
+
+        {/* Divider spans all columns */}
+        <div class="col-span-full">
+          <div class="h-1 mx-auto gradient w-64 rounded-t"></div>
+        </div>
+
+        {/* Card Container: 
+          Spans all 4 columns to provide maximum room for the 4 sponsor images.
+        */}
+        <div class="col-start-1 md:col-start-2 md:col-span-3 px-4 pb-4">
+          <div class="rounded-2xl bg-white border-2 border-purple-400 shadow-lg p-6">
+            {/* Inner Grid: 2 columns on mobile, 4 columns on desktop */}
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 justify-items-center items-center">
+              <img
+                src="/images/sponsors/sponsor-gold-1.png"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador Ouro 1"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SPONSORS BRONZE */}
       <section
         id="sponsorsBronze"

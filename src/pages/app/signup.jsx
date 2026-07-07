@@ -146,7 +146,7 @@ async function addSubmitListener() {
       if (responseJson.success === true) {
         await Swal.fire({
           title: 'Sucesso',
-          text: 'Um email de confirmação foi enviado para o seu endereço eletrônico.',
+          text: 'Um e-mail de confirmação foi enviado para o seu endereço eletrônico. Caso não receba o e-mail, verifique a caixa de spam.',
           confirmButtonText: 'OK',
         });
         window.location.href = `/app/signin`;

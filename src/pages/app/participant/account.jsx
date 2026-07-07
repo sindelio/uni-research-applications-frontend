@@ -42,22 +42,30 @@ async function addAccountInfo() {
   // Get account
   const account = getAccount();
 
-  // Add content
+  // Name
   const nameEl = document.getElementById('name');
   nameEl.textContent = account.name;
+
+  // Institution
   const institutionEl = document.getElementById('institution');
   institutionEl.textContent = account.institution;
+
+  // Email
   const emailEl = document.getElementById('email');
   emailEl.textContent = account.email;
+
+  // Phone
   const phoneEl = document.getElementById('phone');
   phoneEl.textContent = account.phone;
+
+  // Receipt
   const receiptEl = document.getElementById('receipt');
   if (account.receiptFile.isSubmitted) {
     receiptEl.innerHTML = 'Enviado';
-    receiptEl.classList.add('text-green-500');
+    receiptEl.classList.add('text-green-400');
   } else {
     receiptEl.innerHTML = 'Pendente';
-    receiptEl.classList.add('text-red-500');
+    receiptEl.classList.add('text-red-400');
   }
 }
 

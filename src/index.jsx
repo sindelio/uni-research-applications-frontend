@@ -22,6 +22,11 @@ import ExaminerAccount from './pages/app/examiner/account.jsx';
 import ExaminerProject from './pages/app/examiner/project.jsx';
 import ExaminerProjectList from './pages/app/examiner/project/list.jsx';
 import ExaminerProjectListDetails from './pages/app/examiner/project/list/details.jsx';
+import AdminUsers from './pages/app/admin/users.jsx';
+import AdminParticipantList from './pages/app/admin/participant/list.jsx';
+import AdminParticipantListDetails from './pages/app/admin/participant/details/details.jsx';
+import AdminExaminerList from './pages/app/admin/examiner/list.jsx';
+import AdminExaminerListDetails from './pages/app/admin/examiner/details/details.jsx';
 import ParticipantDashboard from './pages/app/participant/dashboard.jsx';
 import ParticipantProject from './pages/app/participant/project.jsx';
 import ParticipantProjectCreate from './pages/app/participant/project/create.jsx';
@@ -66,6 +71,25 @@ render(
         {/* Admin routes */}
         <Route path="/admin">
           <Route path="/dashboard" component={AdminDashboard}></Route>
+          <Route path="/users" component={AdminUsers}></Route>
+          <Route path="/participant">
+            <Route path="/list">
+              <Route path="/" component={AdminParticipantList}></Route>
+              <Route
+                path="/details"
+                component={AdminParticipantListDetails}
+              ></Route>
+            </Route>
+          </Route>
+          <Route path="/examiner">
+            <Route path="/list">
+              <Route path="/" component={AdminExaminerList}></Route>
+              <Route
+                path="/details"
+                component={AdminExaminerListDetails}
+              ></Route>
+            </Route>
+          </Route>
           <Route path="/project">
             <Route path="/" component={AdminProject}></Route>
             <Route path="/list">

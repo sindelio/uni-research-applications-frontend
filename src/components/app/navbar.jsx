@@ -74,7 +74,7 @@ function Navbar() {
           </a>
           <a
             id="user"
-            href={`/app/${userType}/user`}
+            href={`/app/${userType}/users`}
             class="hidden flex my-2 p-3 rounded-lg transition duration-200 hover:bg-purple-800"
           >
             <img
