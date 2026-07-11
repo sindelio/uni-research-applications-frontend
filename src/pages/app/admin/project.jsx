@@ -6,7 +6,6 @@ import Anchor from '../../../components/app/anchor.jsx';
 function AdminProject() {
   onMount(async () => {
     await checkSessionJwt();
-    await readAccount();
   });
   return (
     <div class="flex flex-row text-lg">
@@ -40,7 +39,7 @@ function AdminProject() {
           {/* Edital */}
           <Anchor
             id=""
-            href="/images/edital.pdf"
+            href="/images/documents/edital.pdf"
             inputClass="px-8 py-6"
             download="Edital.pdf"
           >
@@ -60,7 +59,7 @@ function AdminProject() {
           {/* Banner */}
           <Anchor
             id=""
-            href="/images/banner.pptx"
+            href="/images/documents/banner.pptx"
             inputClass="px-8 py-6"
             download="Banner.pptx"
           >

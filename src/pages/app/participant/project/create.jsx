@@ -11,9 +11,6 @@ import Heading from '../../../../components/app/heading.jsx';
 import InputText from '../../../../components/app/input-text.jsx';
 import Button from '../../../../components/app/button.jsx';
 import Divider from '../../../../components/app/divider.jsx';
-import TextArea from '../../../../components/app/text-area.jsx';
-
-import errorMessage from '../../../../helpers/error-message.js';
 
 const {
   PROJECT_STATUS_PENDING_REVIEW,
@@ -22,6 +19,7 @@ const {
 } = env;
 
 const [getAccount, setAccount] = createSignal(null);
+const [getSettings, setSettings] = createSignal(null);
 const [getProject, setProject] = createSignal(null);
 
 const MAX_AREAS = 2;
@@ -29,12 +27,42 @@ let authorIndex = 0;
 let keywordIndex = 0;
 let referenceIndex = 0;
 
+const brazilianStates = [
+  'AC',
+  'AL',
+  'AM',
+  'AP',
+  'BA',
+  'CE',
+  'DF',
+  'ES',
+  'GO',
+  'MA',
+  'MG',
+  'MS',
+  'MT',
+  'PA',
+  'PB',
+  'PE',
+  'PI',
+  'PR',
+  'RJ',
+  'RN',
+  'RO',
+  'RR',
+  'RS',
+  'SC',
+  'SE',
+  'SP',
+  'TO',
+];
+
 async function readAccount() {
   const responseJson = await request('GET', '/participant', null, true);
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';
@@ -42,6 +70,43 @@ async function readAccount() {
   }
   const account = responseJson.data;
   setAccount(account);
+}
+
+async function readSettings() {
+  const responseJson = await request(
+    'GET',
+    '/participant/settings',
+    null,
+    true,
+  );
+  if (responseJson.error) {
+    await Swal.fire({
+      title: 'Oops',
+      text: responseJson?.error?.message,
+      confirmButtonText: 'OK',
+    });
+    window.location.href = '/app/participant/dashboard';
+    return null;
+  }
+  const settings = responseJson.data;
+  setSettings(settings);
+}
+
+async function checkSubmissionEnabled() {
+  // Get settings
+  const settings = getSettings();
+
+  // Check if project submission is enabled
+  const { projectSubmissionEnabled } = settings;
+  if (!projectSubmissionEnabled) {
+    await Swal.fire({
+      title: 'Oops',
+      text: 'Submissão de projetos encerrada',
+      confirmButtonText: 'OK',
+    });
+    window.location.href = '/app/participant/dashboard';
+    return null;
+  }
 }
 
 async function checkReceiptSubmission() {
@@ -76,7 +141,7 @@ async function populateProjectInfo() {
     if (responseJson.error !== null) {
       await Swal.fire({
         title: 'Oops',
-        text: errorMessage,
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       window.location.href = '/app/participant/dashboard';
@@ -389,7 +454,7 @@ async function addSubmitListener() {
       const city = authorButtonEl.dataset.city;
       const state = authorButtonEl.dataset.state;
 
-      if (name && institution) {
+      if (name && institution && city && state) {
         authors.push({
           name: name.trim(),
           institution: institution.trim(),
@@ -439,7 +504,7 @@ async function addSubmitListener() {
 
     // Photo file
     const photoEl = document.getElementById('photoFile');
-    const photoFile = photoEl.files[0];
+    const photoFile = photoEl?.files[0];
 
     // Check title
     if (!exists(title) || title?.length < 3 || title?.length > 500) {
@@ -465,7 +530,8 @@ async function addSubmitListener() {
       if (
         author?.name?.length > 500 ||
         author?.institution?.length > 500 ||
-        author?.city?.length > 500
+        author?.city?.length > 500 ||
+        author?.state.length != 2
       ) {
         await Swal.fire({
           title: 'Oops',
@@ -578,7 +644,7 @@ async function addSubmitListener() {
       summary,
       references,
       projectType,
-      photoFile64Encoded, // Contains the Base64 representation of the Word file
+      photoFile64Encoded, // Contains the string Base64 representation of the Word file
     };
 
     // If resubmitting
@@ -596,7 +662,7 @@ async function addSubmitListener() {
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
-        text: errorMessage,
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       window.location.href = '/app/participant/dashboard';
@@ -615,6 +681,8 @@ function ParticipantProjectCreate() {
   onMount(async () => {
     await checkSessionJwt();
     await readAccount();
+    await readSettings();
+    await checkSubmissionEnabled();
     await checkReceiptSubmission();
     await populateProjectInfo();
     await addNewAuthorListener();
@@ -669,13 +737,18 @@ function ParticipantProjectCreate() {
                   class="w-full px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
                   maxLength={500}
                 />
-                <input
-                  type="text"
+                <select
                   id="authorState"
-                  placeholder="Estado * (ex: SP)"
-                  class="w-1/3 px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600"
-                  maxlength="2"
-                />
+                  name="authorState"
+                  class="w-1/3 px-4 py-1 border border-purple-400 rounded-lg focus:outline-purple-600 bg-white"
+                >
+                  <option value="" disabled selected>
+                    UF *
+                  </option>
+                  <For each={brazilianStates}>
+                    {(state) => <option value={state}>{state}</option>}
+                  </For>
+                </select>
               </div>
               <Button id="plusAuthorButton" inputClass="w-fit mt-2">
                 Adicionar Autor

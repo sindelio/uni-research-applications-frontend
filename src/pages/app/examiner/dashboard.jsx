@@ -4,7 +4,6 @@ import checkSessionJwt from '../../../helpers/check-session-jwt.js';
 import request from '../../../helpers/request.js';
 import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
-import errorMessage from '../../../helpers/error-message.js';
 
 const [getStats, setStats] = createSignal(null);
 const [getNumberOfProjects1, setNumberOfProjects1] = createSignal(null);
@@ -17,7 +16,7 @@ async function readStats() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/support';

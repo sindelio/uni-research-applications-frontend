@@ -1,12 +1,12 @@
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../helpers/check-session-jwt.js';
-import errorMessage from '../../../helpers/error-message.js';
 import request from '../../../helpers/request.js';
 import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
 
 const [getStats, setStats] = createSignal(null);
+const [getSettings, setSettings] = createSignal(null);
 const [getNumberOfAdmins, setNumberOfAdmins] = createSignal(0);
 const [getNumberOfExaminers, setNumberOfExaminers] = createSignal(0);
 const [getNumberOfParticipants, setNumberOfParticipants] = createSignal(0);
@@ -21,7 +21,7 @@ async function readStats() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/support';
@@ -39,10 +39,69 @@ async function readStats() {
   setNumberOfProjects4(stats.projectsRejected);
 }
 
+async function readSettings() {
+  const responseJson = await request('GET', '/admin/settings', null, true);
+  if (responseJson.error) {
+    await Swal.fire({
+      title: 'Oops',
+      text: responseJson?.error?.message,
+      confirmButtonText: 'OK',
+    });
+    window.location.href = '/app/support';
+    return null;
+  }
+  const settings = responseJson.data;
+  setSettings(settings);
+}
+
+async function addProjectSubmissionToggleListener() {
+  // Add toggle listener
+  const toggleButtonEl = document.getElementById('toggleSubmissionBtn');
+  toggleButtonEl.addEventListener('click', async () => {
+    // Check if settings exist
+    const currentSettings = getSettings();
+    if (!currentSettings) return;
+
+    // Invert current submissions status
+    const updatedStatus = !currentSettings.projectSubmissionEnabled;
+
+    // Request
+    const responseJson = await request(
+      'PATCH',
+      '/admin/settings',
+      { projectSubmissionEnabled: updatedStatus },
+      true,
+    );
+
+    // Check if error
+    if (responseJson.error) {
+      await Swal.fire({
+        title: 'Oops',
+        text: responseJson?.error?.message,
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    // Update signal
+    setSettings(responseJson.data);
+
+    // Notify admin
+    await Swal.fire({
+      title: 'Sucesso',
+      text: `Submissão de projetos ${updatedStatus ? 'ativada' : 'desativada'} com sucesso!`,
+      confirmButtonText: 'OK',
+    });
+    window.location.reload();
+  });
+}
+
 function Dashboard() {
   onMount(async () => {
     await checkSessionJwt();
     await readStats();
+    await readSettings();
+    await addProjectSubmissionToggleListener();
   });
 
   return (
@@ -53,12 +112,56 @@ function Dashboard() {
         {/* Heading */}
         <Heading>Dashboard</Heading>
 
+        {/* Settings Section */}
+        <div class="mt-8 mb-3">
+          <h2 class="text-lg font-semibold text-gray-700">Configurações</h2>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 max-w-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Submissão de Projetos
+              </span>
+              <span class="text-sm text-gray-600 mt-1">
+                Status:{' '}
+                <span
+                  class={
+                    getSettings()?.projectSubmissionEnabled
+                      ? 'font-bold text-green-600'
+                      : 'font-bold text-red-600'
+                  }
+                >
+                  {getSettings()
+                    ? getSettings().projectSubmissionEnabled
+                      ? 'Ativado'
+                      : 'Desativado'
+                    : '-'}
+                </span>
+              </span>
+            </div>
+            <button
+              id="toggleSubmissionBtn"
+              class={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors text-white ${
+                getSettings()?.projectSubmissionEnabled
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-green-500 hover:bg-green-600'
+              }`}
+            >
+              {getSettings()
+                ? getSettings().projectSubmissionEnabled
+                  ? 'Desativar'
+                  : 'Ativar'
+                : '...'}
+            </button>
+          </div>
+        </div>
+
         {/* Users Section */}
         <div class="mt-6 mb-3">
           <h2 class="text-lg font-semibold text-gray-700">Usuários</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          {/* Card: Avaliadores */}
+          {/* Card: Admins */}
           <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col max-w-xs">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
               Admins
@@ -102,7 +205,7 @@ function Dashboard() {
         <div class="mb-3">
           <h2 class="text-lg font-semibold text-gray-700">Projetos</h2>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Card: Aguardando Avaliador */}
           <div class="bg-white rounded-lg shadow-sm border-l-4 border-l-amber-400 border-t border-r border-b border-gray-200 p-4 flex flex-col">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -149,7 +252,7 @@ function Dashboard() {
             </span>
             <span
               class="text-2xl font-extrabold text-green-600 mt-1"
-              id="projects2"
+              id="projects3"
             >
               {getNumberOfProjects3() ?? '-'}
             </span>
@@ -162,7 +265,7 @@ function Dashboard() {
             </span>
             <span
               class="text-2xl font-extrabold text-red-600 mt-1"
-              id="projects3"
+              id="projects4"
             >
               {getNumberOfProjects4() ?? '-'}
             </span>

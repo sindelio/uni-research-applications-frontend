@@ -32,7 +32,7 @@ function AdminUsers() {
           {/* Edital */}
           <Anchor
             id=""
-            href="/images/edital.pdf"
+            href="/images/documents/edital.pdf"
             inputClass="px-8 py-6"
             download="Edital.pdf"
           >
@@ -52,7 +52,7 @@ function AdminUsers() {
           {/* Banner */}
           <Anchor
             id=""
-            href="/images/banner.pptx"
+            href="/images/documents/banner.pptx"
             inputClass="px-8 py-6"
             download="Banner.pptx"
           >

@@ -8,7 +8,6 @@ import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
 import TextArea from '../../../../../components/app/text-area.jsx'; // Imported your custom TextArea component
-import errorMessage from '../../../../../helpers/error-message.js';
 
 const {
   LOCAL_STORAGE_USER_TYPE,
@@ -33,7 +32,7 @@ async function readProject() {
   if (responseJson.error !== null) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/examiner/dashboard';

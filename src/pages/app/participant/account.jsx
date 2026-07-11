@@ -13,7 +13,6 @@ import InputText from '../../../components/app/input-text.jsx';
 import InputPassword from '../../../components/app/input-password.jsx';
 import Button from '../../../components/app/button.jsx';
 import Divider from '../../../components/app/divider.jsx';
-import errorMessage from '../../../helpers/error-message.js';
 
 // Configure the worker to use the local file from node_modules
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -28,7 +27,7 @@ async function readAccount() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';

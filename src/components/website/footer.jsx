@@ -15,9 +15,20 @@ async function listenToEmailToClipboard() {
   });
 }
 
+async function listenToHomeScroll() {
+  const homeEl = document.getElementById('home');
+  homeEl.addEventListener('click', () => {
+    // Verifica se o usuário já se encontra na URL Home da aplicação
+    if (window.location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+}
+
 function Footer() {
   onMount(async () => {
     await listenToEmailToClipboard();
+    await listenToHomeScroll();
   });
   return (
     <footer class="bg-gray-100 p-8">

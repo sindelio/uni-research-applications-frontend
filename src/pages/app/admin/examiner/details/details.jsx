@@ -6,7 +6,6 @@ import request from '../../../../../helpers/request.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import P from '../../../../../components/app/paragraph.jsx';
-import errorMessage from '../../../../../helpers/error-message.js';
 
 const {
   LOCAL_STORAGE_USER_TYPE,
@@ -29,7 +28,7 @@ async function readAccount() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = `/app/${userType}/dashboard`;
@@ -69,6 +68,14 @@ async function addAccountInfo() {
     statusEl.textContent = 'E-mail confirmado';
     statusEl.classList.add('text-green-400');
   }
+
+  // Number of projects evaluated
+  const numProjectsEl = document.getElementById('numProjects');
+  numProjectsEl.textContent = account.numProjects;
+
+  // Max projects to evaluate
+  const maxProjectsEl = document.getElementById('maxProjects');
+  maxProjectsEl.textContent = account.maxProjects;
 }
 
 function AdminExaminerListDetails() {
@@ -98,6 +105,12 @@ function AdminExaminerListDetails() {
         </P>
         <P>
           Estado da conta: <span id="status"></span>
+        </P>
+        <P>
+          Número de projetos avaliados: <span id="numProjects"></span>
+        </P>
+        <P>
+          Número máximo de projetos: <span id="maxProjects"></span>
         </P>
       </div>
     </div>

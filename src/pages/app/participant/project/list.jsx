@@ -7,7 +7,6 @@ import Navbar from '../../../../components/app/navbar.jsx';
 import Button from '../../../../components/app/button.jsx';
 import P from '../../../../components/app/paragraph.jsx';
 import InputNumber from '../../../../components/app/input-number.jsx';
-import errorMessage from '../../../../helpers/error-message.js';
 
 const {
   PROJECT_WAITING_EXAMINER,
@@ -31,7 +30,7 @@ async function getList(pageRequested = 1) {
   if (responseJson.error !== null) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/participant/dashboard';

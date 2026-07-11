@@ -8,7 +8,6 @@ import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
 import Heading from '../../../../../components/app/heading.jsx';
 import Button from '../../../../../components/app/button.jsx';
-import errorMessage from '../../../../../helpers/error-message.js';
 
 const {
   LOCAL_STORAGE_USER_TYPE,
@@ -34,7 +33,7 @@ async function readProject() {
   if (responseJson.error !== null) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = `/app/${userType}/dashboard`;
@@ -321,7 +320,7 @@ async function addExaminerAllocationListener() {
     if (responseJson.error !== null) {
       await Swal.fire({
         title: 'Oops',
-        text: responseJson?.error?.message || errorMessage,
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       return null;

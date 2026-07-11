@@ -4,7 +4,6 @@ import checkSessionJwt from '../../../helpers/check-session-jwt.js';
 import exists from '../../../helpers/exists.js';
 import maskPhone from '../../../helpers/mask-phone.js';
 import request from '../../../helpers/request.js';
-import errorMessage from '../../../helpers/error-message.js';
 import Navbar from '../../../components/app/navbar.jsx';
 import Heading from '../../../components/app/heading.jsx';
 import P from '../../../components/app/paragraph.jsx';
@@ -24,7 +23,7 @@ async function readAccount() {
   if (responseJson.error) {
     await Swal.fire({
       title: 'Oops',
-      text: errorMessage,
+      text: responseJson?.error?.message,
       confirmButtonText: 'OK',
     });
     window.location.href = '/app/admin/dashboard';
@@ -77,7 +76,7 @@ async function addDetailsSubmitListener() {
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
-        text: errorMessage,
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       window.location.href = '/app/participant/dashboard';
@@ -174,7 +173,7 @@ async function addPasswordSubmitListener() {
     if (responseJson.error) {
       await Swal.fire({
         title: 'Oops',
-        text: errorMessage,
+        text: responseJson?.error?.message,
         confirmButtonText: 'OK',
       });
       window.location.href = '/app/admin/dashboard';
