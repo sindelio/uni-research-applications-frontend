@@ -2,6 +2,7 @@ import env from '../../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
+import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
@@ -11,6 +12,7 @@ import TextArea from '../../../../../components/app/text-area.jsx'; // Imported 
 
 const {
   LOCAL_STORAGE_USER_TYPE,
+  PROJECT_TYPE_PHOTO,
   PROJECT_PENDING_REVIEW,
   PROJECT_PARTIALLY_APPROVED,
   PROJECT_APPROVED,
@@ -125,7 +127,7 @@ async function addProjectInfo() {
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
   // Download
-  if (project.photoFile?.isSubmitted) {
+  if (projectType === PROJECT_TYPE_PHOTO && project.photoFile?.isSubmitted) {
     const downloadEl = document.getElementById('downloadFile');
     downloadEl.classList.remove('hidden');
     downloadEl.addEventListener('click', () => {
@@ -606,7 +608,7 @@ function ExaminerProjectListDetails() {
                     </div>
                     <div>
                       <label class="text-xs font-bold uppercase tracking-wider text-amber-600 block">
-                        Ressalvas / Alterações Solicitadas
+                        Ressalvas / Alterações
                       </label>
                       <p
                         id="evalCaveats"
@@ -688,7 +690,7 @@ function ExaminerProjectListDetails() {
           {/* Evaluation checkboxes */}
           <div>
             <p class="text-sm font-semibold text-gray-700 mb-3">
-              Marque os campos validados com sucesso:
+              Marque os campos validados com sucesso *
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label class="flex items-center gap-3 cursor-pointer">
@@ -779,7 +781,7 @@ function ExaminerProjectListDetails() {
           {/* Scores Section (0 to 5) */}
           <div>
             <p class="text-sm font-semibold text-gray-700 mb-3">
-              Notas por Critério (0 a 5):
+              Notas por Critério (0 a 5) *
             </p>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
               <div>
@@ -871,7 +873,7 @@ function ExaminerProjectListDetails() {
           <div class="flex flex-col sm:flex-row sm:items-end gap-6">
             <div class="w-full max-w-xs">
               <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Decisão Final
+                Decisão Final *
               </label>
               <select
                 id="evaluationStatus"
@@ -906,7 +908,7 @@ function ExaminerProjectListDetails() {
                   class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
                 />
                 <span class="text-sm font-semibold text-purple-900">
-                  Indicar ao Prêmio
+                  Indicar ao Prêmio *
                 </span>
               </label>
             </div>
@@ -916,13 +918,13 @@ function ExaminerProjectListDetails() {
           <div class="space-y-1">
             <TextArea
               id="evaluationCommentaries"
-              label="Comentários Adicionais"
+              label="Comentários Adicionais *"
               placeholder="Escreva pontos fortes, elogios e observações gerais..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
             />
             <TextArea
               id="evaluationCaveats"
-              label="Ressalvas / Modificações Obrigatórias"
+              label="Ressalvas / Modificações Obrigatórias *"
               placeholder="Descreva correções urgentes e pontos a ajustar caso reprovado..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
             />
