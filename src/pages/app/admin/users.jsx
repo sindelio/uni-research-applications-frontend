@@ -6,7 +6,6 @@ import Anchor from '../../../components/app/anchor.jsx';
 function AdminUsers() {
   onMount(async () => {
     await checkSessionJwt();
-    await readAccount();
   });
   return (
     <div class="flex flex-row text-lg">

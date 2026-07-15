@@ -38,9 +38,6 @@ async function readList(pageRequested = 1) {
     window.location.href = `/app/${userType}/dashboard`;
   }
   const list = responseJson.data;
-
-  console.log(list);
-
   setList(list);
 }
 
