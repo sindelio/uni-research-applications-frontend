@@ -223,9 +223,11 @@ async function addEvaluationInfo() {
       }
     }
 
-    // Populate commentaries and caveats text content
-    document.getElementById('evalCommentaries').textContent =
-      evaluation.commentaries || 'Nenhum comentário.';
+    // // Populate commentaries
+    // document.getElementById('evalCommentaries').textContent =
+    //   evaluation.commentaries || 'Nenhum comentário.';
+
+    // Populate caveats
     document.getElementById('evalCaveats').textContent =
       evaluation.caveats || 'Nenhuma ressalva.';
 
@@ -556,7 +558,7 @@ function ParticipantProjectListDetails() {
 
                   {/* Text Comments Sections */}
                   <div class="space-y-4 pt-2">
-                    <div>
+                    {/* <div>
                       <label class="text-xs font-bold uppercase tracking-wider text-purple-600 block">
                         Comentários
                       </label>
@@ -564,7 +566,7 @@ function ParticipantProjectListDetails() {
                         id="evalCommentaries"
                         class="mt-1 text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap"
                       ></p>
-                    </div>
+                    </div> */}
                     <div>
                       <label class="text-xs font-bold uppercase tracking-wider text-amber-600 block">
                         Ressalvas / Alterações Solicitadas
