@@ -20,6 +20,7 @@ const {
 
 const userType = localStorage.getItem(LOCAL_STORAGE_USER_TYPE);
 const [getProject, setProject] = createSignal(null);
+const [getExaminers, setExaminers] = createSignal(null);
 
 async function readProject() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -41,6 +42,28 @@ async function readProject() {
   }
   const project = responseJson.data;
   setProject(project);
+}
+
+async function readExaminers() {
+  const responseJson = await request(
+    'GET',
+    `/${userType}/examiners`,
+    null,
+    true,
+  );
+  if (responseJson.error !== null) {
+    await Swal.fire({
+      title: 'Oops',
+      text: responseJson?.error?.message,
+      confirmButtonText: 'OK',
+    });
+    window.location.href = `/app/${userType}/dashboard`;
+    return null;
+  }
+  const examiners = responseJson.data;
+  setExaminers(examiners);
+
+  console.log(examiners);
 }
 
 async function addProjectInfo() {
@@ -125,10 +148,6 @@ async function addProjectInfo() {
     referencesContainer.textContent = '-';
   }
 
-  // Suggested examiner
-  document.getElementById('suggestedExaminerEmail').textContent =
-    project?.suggestedExaminerEmail || '-';
-
   // Allocated examiner
   document.getElementById('allocatedExaminer').textContent =
     project?.examinerEmail || '-';
@@ -166,7 +185,6 @@ async function addEvaluationInfo() {
     const evaluation = project.evaluation;
     const fields = [
       'title',
-      'authors',
       'areas',
       'summary',
       'keywords',
@@ -275,10 +293,80 @@ async function addExaminerAllocationListener() {
     'allocateInputContainer',
   );
   const closeAllocateModalBtn = document.getElementById('closeAllocateModal');
+  const examinersListContainer = document.getElementById(
+    'examinersListContainer',
+  );
+
+  const populateExaminersList = () => {
+    const examiners = getExaminers() || [];
+    examinersListContainer.innerHTML = '';
+
+    if (examiners.length === 0) {
+      examinersListContainer.innerHTML =
+        '<p class="text-sm text-gray-500 italic p-2 text-center">Nenhum avaliador encontrado.</p>';
+      return;
+    }
+
+    let hasSelectedFirstAvailable = false;
+
+    examiners.forEach((examiner) => {
+      const numProjects = examiner.numProjects ?? 0;
+      const maxProjects = examiner.maxProjects ?? 0;
+      const isFull = numProjects >= maxProjects;
+
+      const label = document.createElement('label');
+      label.className = `flex items-center justify-between p-3 rounded-lg border transition-colors ${
+        isFull
+          ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
+          : 'bg-white border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 cursor-pointer'
+      }`;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'selectedExaminer';
+      radio.value = examiner.email;
+      radio.disabled = isFull;
+      radio.className = 'text-purple-600 focus:ring-purple-500 h-4 w-4';
+
+      if (!isFull && !hasSelectedFirstAvailable) {
+        radio.checked = true;
+        hasSelectedFirstAvailable = true;
+      }
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'ml-3 flex-1';
+
+      const nameP = document.createElement('p');
+      nameP.className = 'text-sm font-semibold text-gray-800';
+      nameP.textContent = examiner.name || examiner.email;
+
+      const emailP = document.createElement('p');
+      emailP.className = 'text-xs text-gray-500';
+      emailP.textContent = examiner.email;
+
+      infoDiv.appendChild(nameP);
+      infoDiv.appendChild(emailP);
+
+      const badgeSpan = document.createElement('span');
+      badgeSpan.className = `text-xs font-medium px-2.5 py-1 rounded-full border ${
+        isFull
+          ? 'bg-red-50 text-red-700 border-red-200'
+          : 'bg-purple-50 text-purple-700 border-purple-200'
+      }`;
+      badgeSpan.textContent = `${numProjects} / ${maxProjects} projetos`;
+
+      label.appendChild(radio);
+      label.appendChild(infoDiv);
+      label.appendChild(badgeSpan);
+
+      examinersListContainer.appendChild(label);
+    });
+  };
 
   // Button click listener
   allocateExaminerBtn.classList.remove('hidden');
   allocateExaminerBtn.addEventListener('click', () => {
+    populateExaminersList();
     allocateInputContainer.classList.remove('hidden');
   });
 
@@ -297,12 +385,15 @@ async function addExaminerAllocationListener() {
   // Confirmation listener
   const confirmAllocateBtn = document.getElementById('confirmAllocateBtn');
   confirmAllocateBtn.addEventListener('click', async () => {
-    const examinerEmail = document.getElementById('examinerEmail').value;
+    const selectedRadio = document.querySelector(
+      'input[name="selectedExaminer"]:checked',
+    );
+    const examinerEmail = selectedRadio ? selectedRadio.value : '';
 
     if (!validateEmail(examinerEmail)) {
       await Swal.fire({
         title: 'Oops',
-        text: 'Por favor, verifique o e-mail do avaliador.',
+        text: 'Por favor, selecione um avaliador válido.',
         confirmButtonText: 'OK',
       });
       return;
@@ -345,6 +436,7 @@ function AdminProjectListDetails() {
   onMount(async () => {
     await checkSessionJwt();
     await readProject();
+    await readExaminers();
     await addProjectInfo();
     await addEvaluationInfo();
     await addBackListener();
@@ -433,15 +525,6 @@ function AdminProjectListDetails() {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <section>
               <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Avaliador Sugerido
-              </label>
-              <p
-                id="suggestedExaminerEmail"
-                class="mt-1 font-medium text-gray-700"
-              ></p>
-            </section>
-            <section>
-              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Avaliador Alocado
               </label>
               <p
@@ -506,10 +589,6 @@ function AdminProjectListDetails() {
                       <span id="evalTitle"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Autores:</span>
-                      <span id="evalAuthors"></span>
-                    </div>
-                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
                       <span class="font-medium text-gray-600">Áreas:</span>
                       <span id="evalAreas"></span>
                     </div>
@@ -536,7 +615,7 @@ function AdminProjectListDetails() {
                       <span id="evalProjectType"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Banner:</span>
+                      <span class="font-medium text-gray-600">Fotografia:</span>
                       <span id="evalBanner"></span>
                     </div>
                   </div>
@@ -612,7 +691,7 @@ function AdminProjectListDetails() {
                     </div>
                     <div>
                       <label class="text-xs font-bold uppercase tracking-wider text-amber-600 block">
-                        Ressalvas / Alterações Solicitadas
+                        Ressalvas / Alterações Obrigatórias
                       </label>
                       <p
                         id="evalCaveats"
@@ -665,7 +744,7 @@ function AdminProjectListDetails() {
                   id="allocateInputContainer"
                   class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4"
                 >
-                  <div class="bg-white rounded-xl p-6 max-w-md w-full space-y-4 shadow-2xl border border-gray-100 text-left">
+                  <div class="bg-white rounded-xl p-6 max-w-lg w-full space-y-4 shadow-2xl border border-gray-100 text-left">
                     <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                       <h3 class="text-lg font-bold text-gray-900">
                         Alocar Avaliador ao Projeto
@@ -681,14 +760,12 @@ function AdminProjectListDetails() {
 
                     <div class="space-y-1.5">
                       <label class="text-xs font-bold uppercase tracking-wider text-gray-500 block">
-                        E-mail do avaliador
+                        Selecione o Avaliador
                       </label>
-                      <input
-                        type="email"
-                        id="examinerEmail"
-                        class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-purple-600 w-full"
-                        placeholder="Ex: avaliador@email.com"
-                      />
+                      <div
+                        id="examinersListContainer"
+                        class="max-h-60 overflow-y-auto space-y-2 pr-1"
+                      ></div>
                     </div>
 
                     <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">

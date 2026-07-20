@@ -153,7 +153,6 @@ async function addEvaluationInfo() {
     const evaluation = project.evaluation;
     const fields = [
       'title',
-      'authors',
       'areas',
       'summary',
       'keywords',
@@ -463,10 +462,6 @@ function ParticipantProjectListDetails() {
                       <span id="evalTitle"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Autores:</span>
-                      <span id="evalAuthors"></span>
-                    </div>
-                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
                       <span class="font-medium text-gray-600">Áreas:</span>
                       <span id="evalAreas"></span>
                     </div>
@@ -493,7 +488,7 @@ function ParticipantProjectListDetails() {
                       <span id="evalProjectType"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Banner:</span>
+                      <span class="font-medium text-gray-600">Fotografia:</span>
                       <span id="evalBanner"></span>
                     </div>
                   </div>
@@ -558,18 +553,9 @@ function ParticipantProjectListDetails() {
 
                   {/* Text Comments Sections */}
                   <div class="space-y-4 pt-2">
-                    {/* <div>
-                      <label class="text-xs font-bold uppercase tracking-wider text-purple-600 block">
-                        Comentários
-                      </label>
-                      <p
-                        id="evalCommentaries"
-                        class="mt-1 text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap"
-                      ></p>
-                    </div> */}
                     <div>
                       <label class="text-xs font-bold uppercase tracking-wider text-amber-600 block">
-                        Ressalvas / Alterações Solicitadas
+                        Ressalvas / Alterações Obrigatórias
                       </label>
                       <p
                         id="evalCaveats"

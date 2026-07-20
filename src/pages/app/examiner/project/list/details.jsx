@@ -2,7 +2,6 @@ import env from '../../../../../client-envs/current.js';
 import { createSignal, onMount } from 'solid-js';
 import Swal from 'sweetalert2';
 import checkSessionJwt from '../../../../../helpers/check-session-jwt.js';
-import exists from '../../../../../helpers/exists.js';
 import request from '../../../../../helpers/request.js';
 import downloadBuffer from '../../../../../helpers/download-buffer.js';
 import Navbar from '../../../../../components/app/navbar.jsx';
@@ -50,17 +49,6 @@ async function addProjectInfo() {
 
   // Title
   document.getElementById('title').textContent = project?.title || '-';
-
-  // // Authors
-  // const authorsEl = document.getElementById('authors-list');
-  // authorsEl.innerHTML = '';
-  // project.authors.forEach((author) => {
-  //   const span = document.createElement('span');
-  //   span.className =
-  //     'block text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-1 mb-1 w-fit';
-  //   span.textContent = `${author.name} — ${author.institution}`;
-  //   authorsEl.appendChild(span);
-  // });
 
   // Areas
   const areasEl = document.getElementById('areas');
@@ -159,7 +147,6 @@ async function addEvaluationInfo() {
     const evaluation = project.evaluation;
     const fields = [
       'title',
-      'authors',
       'areas',
       'summary',
       'keywords',
@@ -290,7 +277,6 @@ async function addEvaluationListeners() {
     const payload = {
       status: document.getElementById('evaluationStatus').value,
       title: document.getElementById('evaluationTitle').checked,
-      authors: document.getElementById('evaluationAuthors').checked,
       areas: document.getElementById('evaluationAreas').checked,
       summary: document.getElementById('evaluationSummary').checked,
       keywords: document.getElementById('evaluationKeywords').checked,
@@ -336,7 +322,7 @@ async function addEvaluationListeners() {
     if (responseJson.error !== null) {
       await Swal.fire({
         title: 'Oops',
-        text: responseJson.error.message || 'Verifique os dados enviados.',
+        text: responseJson?.error?.message || 'Verifique os dados enviados.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
@@ -398,14 +384,6 @@ function ExaminerProjectListDetails() {
           </div>
 
           <hr class="border-gray-100" />
-
-          {/* Authors */}
-          <section class="hidden">
-            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
-              Equipe de Autores
-            </label>
-            <div id="authors-list" class="mt-2 flex flex-wrap gap-2"></div>
-          </section>
 
           {/* Areas */}
           <section>
@@ -502,10 +480,6 @@ function ExaminerProjectListDetails() {
                       <span id="evalTitle"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Autores:</span>
-                      <span id="evalAuthors"></span>
-                    </div>
-                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
                       <span class="font-medium text-gray-600">Áreas:</span>
                       <span id="evalAreas"></span>
                     </div>
@@ -532,7 +506,7 @@ function ExaminerProjectListDetails() {
                       <span id="evalProjectType"></span>
                     </div>
                     <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
-                      <span class="font-medium text-gray-600">Banner:</span>
+                      <span class="font-medium text-gray-600">Fotografia:</span>
                       <span id="evalBanner"></span>
                     </div>
                   </div>
@@ -705,15 +679,6 @@ function ExaminerProjectListDetails() {
               <label class="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  id="evaluationAuthors"
-                  class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
-                  checked
-                />
-                <span class="text-sm text-gray-700">Autores validados</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
                   id="evaluationAreas"
                   class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
                   checked
@@ -771,7 +736,7 @@ function ExaminerProjectListDetails() {
                   class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
                   checked
                 />
-                <span class="text-sm text-gray-700">Banner adequado</span>
+                <span class="text-sm text-gray-700">Fotografia adequada</span>
               </label>
             </div>
           </div>
@@ -918,13 +883,13 @@ function ExaminerProjectListDetails() {
           <div class="space-y-1">
             <TextArea
               id="evaluationCommentaries"
-              label="Comentários Adicionais *"
+              label="Comentários Adicionais * (submissor NÃO terá acesso)"
               placeholder="Escreva pontos fortes, elogios e observações gerais..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
             />
             <TextArea
               id="evaluationCaveats"
-              label="Ressalvas / Modificações Obrigatórias *"
+              label="Ressalvas / Alterações Obrigatórias * (submissor terá acesso)"
               placeholder="Descreva correções urgentes e pontos a ajustar caso reprovado..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
             />
