@@ -315,7 +315,7 @@ async function addExaminerAllocationListener() {
       const isFull = numProjects >= maxProjects;
 
       const label = document.createElement('label');
-      label.className = `flex items-center justify-between p-3 rounded-lg border transition-colors ${
+      label.className = `flex items-start justify-between p-3 rounded-lg border transition-colors ${
         isFull
           ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
           : 'bg-white border-gray-200 hover:border-purple-300 hover:bg-purple-50/50 cursor-pointer'
@@ -326,7 +326,7 @@ async function addExaminerAllocationListener() {
       radio.name = 'selectedExaminer';
       radio.value = examiner.email;
       radio.disabled = isFull;
-      radio.className = 'text-purple-600 focus:ring-purple-500 h-4 w-4';
+      radio.className = 'text-purple-600 focus:ring-purple-500 h-4 w-4 mt-0.5';
 
       if (!isFull && !hasSelectedFirstAvailable) {
         radio.checked = true;
@@ -334,7 +334,7 @@ async function addExaminerAllocationListener() {
       }
 
       const infoDiv = document.createElement('div');
-      infoDiv.className = 'ml-3 flex-1';
+      infoDiv.className = 'ml-3 flex-1 min-w-0 pr-2';
 
       const nameP = document.createElement('p');
       nameP.className = 'text-sm font-semibold text-gray-800';
@@ -347,8 +347,25 @@ async function addExaminerAllocationListener() {
       infoDiv.appendChild(nameP);
       infoDiv.appendChild(emailP);
 
+      // Render Areas of Knowledge
+      const examinerAreas = examiner.areas || [];
+      if (examinerAreas.length > 0) {
+        const areasDiv = document.createElement('div');
+        areasDiv.className = 'mt-2 flex flex-wrap gap-1';
+
+        examinerAreas.forEach((area) => {
+          const areaSpan = document.createElement('span');
+          areaSpan.className =
+            'text-[10px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 leading-none';
+          areaSpan.textContent = area;
+          areasDiv.appendChild(areaSpan);
+        });
+
+        infoDiv.appendChild(areasDiv);
+      }
+
       const badgeSpan = document.createElement('span');
-      badgeSpan.className = `text-xs font-medium px-2.5 py-1 rounded-full border ${
+      badgeSpan.className = `text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 ${
         isFull
           ? 'bg-red-50 text-red-700 border-red-200'
           : 'bg-purple-50 text-purple-700 border-purple-200'
