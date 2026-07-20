@@ -593,7 +593,7 @@ async function addSubmitListener() {
     }
 
     // Check references
-    if (references.length < 1) {
+    if (references.length < 3 || references.length > 5) {
       await Swal.fire({
         title: 'Oops',
         text: 'Verifique as referências.',
@@ -815,7 +815,7 @@ function ParticipantProjectCreate() {
 
           {/* References */}
           <div>
-            <p class="mb-2">Referências * (1 a 50, max 500 caracteres)</p>
+            <p class="mb-2">Referências * (3 a 5, max 500 caracteres)</p>
             <div class="flex flex-col gap-2">
               <input
                 type="text"
