@@ -62,8 +62,6 @@ async function readExaminers() {
   }
   const examiners = responseJson.data;
   setExaminers(examiners);
-
-  console.log(examiners);
 }
 
 async function addProjectInfo() {
@@ -92,6 +90,14 @@ async function addProjectInfo() {
   }
   statusEl.textContent = statusText;
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
+
+  // Project type
+  document.getElementById('projectType').textContent =
+    project?.projectType || '-';
+
+  // Participant email
+  document.getElementById('participantEmail').textContent =
+    project?.participantEmail || '-';
 
   // Authors
   const authorsEl = document.getElementById('authors-list');
@@ -125,10 +131,6 @@ async function addProjectInfo() {
 
   // Summary
   document.getElementById('summary').textContent = project?.summary || '-';
-
-  // Project type
-  document.getElementById('projectType').textContent =
-    project?.projectType || '-';
 
   // Created at
   document.getElementById('createdAt').textContent =
@@ -483,11 +485,20 @@ function AdminProjectListDetails() {
           </section>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Project type */}
             <section>
               <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Tipo de Projeto
               </label>
               <p id="projectType" class="mt-1 font-medium"></p>
+            </section>
+
+            {/* Participant email */}
+            <section>
+              <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                Email do Submissor
+              </label>
+              <p id="participantEmail" class="mt-1 font-medium"></p>
             </section>
           </div>
 

@@ -664,7 +664,7 @@ function ExaminerProjectListDetails() {
           {/* Evaluation checkboxes */}
           <div>
             <p class="text-sm font-semibold text-gray-700 mb-3">
-              Marque os campos validados com sucesso *
+              Marque os campos validados com sucesso * (submissor terá acesso)
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label class="flex items-center gap-3 cursor-pointer">
@@ -746,7 +746,7 @@ function ExaminerProjectListDetails() {
           {/* Scores Section (0 to 5) */}
           <div>
             <p class="text-sm font-semibold text-gray-700 mb-3">
-              Notas por Critério (0 a 5) *
+              Notas por Critério (0 a 5, o submissor NÃO terá acesso) *
             </p>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
               <div>
@@ -838,7 +838,7 @@ function ExaminerProjectListDetails() {
           <div class="flex flex-col sm:flex-row sm:items-end gap-6">
             <div class="w-full max-w-xs">
               <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Decisão Final *
+                Decisão Final * (submissor terá acesso)
               </label>
               <select
                 id="evaluationStatus"
@@ -873,7 +873,7 @@ function ExaminerProjectListDetails() {
                   class="rounded text-purple-600 focus:ring-purple-500 w-4 h-4 border-gray-300"
                 />
                 <span class="text-sm font-semibold text-purple-900">
-                  Indicar ao Prêmio *
+                  Indicar ao Prêmio * (submissor NÃO terá acesso)
                 </span>
               </label>
             </div>

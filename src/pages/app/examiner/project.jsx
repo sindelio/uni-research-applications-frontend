@@ -99,6 +99,16 @@ function ExaminerProject() {
           >
             Banner
           </Anchor>
+
+          {/* Instructions */}
+          <Anchor
+            id=""
+            href="/images/documents/instructions.pdf"
+            inputClass="px-8 py-6"
+            download="Instruções.pdf"
+          >
+            Instruções ao Avaliador
+          </Anchor>
         </div>
       </div>
     </div>

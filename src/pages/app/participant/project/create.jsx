@@ -861,7 +861,12 @@ function ParticipantProjectCreate() {
           </div>
 
           <div id="projectPhoto" class="hidden mb-6">
-            <p class="mb-2">Arquivo do Projeto (Word) *</p>
+            <p class="mb-2">
+              Arquivo do Projeto (Word) *
+              <br />
+              Atenção: a fotografia do projeto deve estar dentro do arquivo Word
+              (.docx ou .doc)
+            </p>
             <input
               type="file"
               id="photoFile"

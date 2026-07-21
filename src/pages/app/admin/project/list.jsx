@@ -79,7 +79,12 @@ async function addListInfo() {
       'list-none my-6 px-6 py-4 border-2 border-purple-500 rounded-xl col-start-1 col-span-full shadow-md hover:cursor-pointer';
 
     // Contents
-    const itemInfo = `<div class="py-1">Título: ${item?.title}<br />Estado: ${statusInfo}</div>`;
+    const itemInfo = `
+    <div class="py-1">Título: ${item?.title}
+    <br />Estado: ${statusInfo}
+    <br />Tipo: ${item?.projectType}
+    </div>
+    `;
     const plus = `<div class="text-center text-purple-500 text-xl">+</div>`;
     el.innerHTML = `${itemInfo}${plus}`;
 
