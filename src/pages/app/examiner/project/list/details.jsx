@@ -115,7 +115,10 @@ async function addProjectInfo() {
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
   // Download
-  if (projectType === PROJECT_TYPE_PHOTO && project.photoFile?.isSubmitted) {
+  if (
+    project?.projectType === PROJECT_TYPE_PHOTO &&
+    project.photoFile?.isSubmitted
+  ) {
     const downloadEl = document.getElementById('downloadFile');
     downloadEl.classList.remove('hidden');
     downloadEl.addEventListener('click', () => {
