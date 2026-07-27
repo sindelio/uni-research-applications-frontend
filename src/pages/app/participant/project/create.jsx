@@ -21,6 +21,7 @@ const {
 const [getAccount, setAccount] = createSignal(null);
 const [getSettings, setSettings] = createSignal(null);
 const [getProject, setProject] = createSignal(null);
+const [getIsEditing, setIsEditing] = createSignal(null);
 
 const MAX_AREAS = 2;
 let authorIndex = 0;
@@ -92,13 +93,29 @@ async function readSettings() {
   setSettings(settings);
 }
 
+async function setEditState() {
+  // Get project ID if present
+  const urlQueryParams = new URLSearchParams(window.location.search);
+  const projectId = urlQueryParams.get('projectId');
+
+  // Set edit signal
+  if (exists(projectId)) {
+    setIsEditing(true);
+  } else {
+    setIsEditing(false);
+  }
+}
+
 async function checkSubmissionEnabled() {
   // Get settings
   const settings = getSettings();
 
+  // Get edit state
+  const isEditing = getIsEditing();
+
   // Check if project submission is enabled
   const { projectSubmissionEnabled } = settings;
-  if (!projectSubmissionEnabled) {
+  if (!projectSubmissionEnabled && !isEditing) {
     await Swal.fire({
       title: 'Oops',
       text: 'Submissão de projetos encerrada',
@@ -682,6 +699,7 @@ function ParticipantProjectCreate() {
     await checkSessionJwt();
     await readAccount();
     await readSettings();
+    await setEditState();
     await checkSubmissionEnabled();
     await checkReceiptSubmission();
     await populateProjectInfo();
