@@ -274,6 +274,12 @@ async function populateProjectInfo() {
         }
       }
     }
+
+    // Show resubmission commentaries
+    const resubmissionCommentariesSectionEl = document.getElementById(
+      'resubmissionCommentariesSection',
+    );
+    resubmissionCommentariesSectionEl.classList.remove('hidden');
   }
 }
 
@@ -669,7 +675,13 @@ async function addSubmitListener() {
     if (exists(project)) {
       httpMethod = 'PATCH';
       url = `/participant/project?projectId=${project._id}`;
+
+      // Status
       payload.status = PROJECT_STATUS_PENDING_REVIEW;
+
+      // Resubmission commentaries
+      const resubmissionCommentaries = formData.get('resubmissionCommentaries');
+      payload.resubmissionCommentaries = resubmissionCommentaries;
     }
 
     // Send request
@@ -892,6 +904,25 @@ function ParticipantProjectCreate() {
               accept=".doc,.docx"
               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
             />
+          </div>
+
+          {/* Resubmission Commentaries */}
+          <div id="resubmissionCommentariesSection" class="hidden">
+            <p class="flex">
+              Comentários de Ressubmissão * (0 a 500 caracteres)
+              <br />
+            </p>
+            <textarea
+              id="resubmissionCommentaries"
+              name="resubmissionCommentaries"
+              class="mt-2 mb-6 p-4 border border-purple-400 rounded-lg focus:outline-purple-600"
+              placeholder="Comentários de resubmissão .."
+              rows={8}
+              cols={48}
+              minLength={0}
+              maxlength={500}
+              style={{ resize: 'none' }}
+            ></textarea>
           </div>
 
           {/* Submit */}

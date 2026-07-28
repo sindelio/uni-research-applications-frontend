@@ -114,6 +114,18 @@ async function addProjectInfo() {
   statusEl.textContent = statusText;
   statusEl.className = `px-3 py-1 rounded-full border text-sm font-medium ${statusClass}`;
 
+  // Resubmission commentaries
+  if (project?.resubmissionCommentaries) {
+    const resubmissionCommentariesSectionEl = document.getElementById(
+      'resubmissionCommentariesSection',
+    );
+    resubmissionCommentariesSectionEl.classList.remove('hidden');
+    const resubmissionCommentariesEl = document.getElementById(
+      'resubmissionCommentaries',
+    );
+    resubmissionCommentariesEl.textContent = project?.resubmissionCommentaries;
+  }
+
   // Download
   if (
     project?.projectType === PROJECT_TYPE_PHOTO &&
@@ -425,6 +437,17 @@ function ExaminerProjectListDetails() {
               id="references-list"
               class="mt-2 space-y-1 list-decimal list-inside text-gray-700"
             ></ol>
+          </section>
+
+          {/* Resubmission Commentaries */}
+          <section id="resubmissionCommentariesSection" class="hidden">
+            <label class="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Comentários de Ressubmissão
+            </label>
+            <p
+              id="resubmissionCommentaries"
+              class="mt-2 text-gray-700 leading-relaxed whitespace-pre-wrap text-base"
+            ></p>
           </section>
 
           <hr class="border-gray-100" />
