@@ -909,15 +909,19 @@ function ExaminerProjectListDetails() {
           <div class="space-y-1">
             <TextArea
               id="evaluationCommentaries"
-              label="Comentários Adicionais * (submissor NÃO terá acesso)"
+              label="Comentários Adicionais * (submissor NÃO terá acesso, max 2500 caracteres)"
               placeholder="Escreva pontos fortes, elogios e observações gerais..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
+              rows={8}
+              maxlength={2500}
             />
             <TextArea
               id="evaluationCaveats"
-              label="Ressalvas / Alterações Obrigatórias * (submissor terá acesso)"
+              label="Ressalvas / Alterações Obrigatórias * (submissor terá acesso, max 2500 caracteres)"
               placeholder="Descreva correções urgentes e pontos a ajustar caso reprovado..."
               inputClass="w-full mt-1 border-gray-300 focus:border-purple-600 focus:ring-purple-600"
+              rows={8}
+              maxlength={2500}
             />
           </div>
 
