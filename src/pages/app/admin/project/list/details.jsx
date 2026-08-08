@@ -189,6 +189,7 @@ async function addEvaluationInfo() {
 
   const projectStatus = project.status;
   if (
+    project?.evaluation ||
     projectStatus === PROJECT_PARTIALLY_APPROVED ||
     projectStatus === PROJECT_APPROVED ||
     projectStatus === PROJECT_REJECTED
