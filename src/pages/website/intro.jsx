@@ -262,6 +262,11 @@ function Intro(props) {
                 class="w-32 h-32 object-contain"
                 alt="Patrocinador Ouro 1"
               />
+              <img
+                src="/images/sponsors/sponsor-gold-2.png"
+                class="w-32 h-32 object-contain"
+                alt="Patrocinador Ouro 2"
+              />
             </div>
           </div>
         </div>
