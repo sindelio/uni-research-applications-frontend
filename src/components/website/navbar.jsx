@@ -155,7 +155,7 @@ function Navbar() {
           id="downloadEdital"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
-          <a href="/images/documents/edital.pdf" download="Edital.pdf">
+          <a href="/documents/edital.pdf" download="Edital.pdf">
             Edital
           </a>
         </button>
@@ -165,8 +165,18 @@ function Navbar() {
           id="downloadBanner"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
-          <a href="/images/documents/banner.pptx" download="Banner.pptx">
+          <a href="/documents/banner.pptx" download="Banner.pptx">
             Banner
+          </a>
+        </button>
+
+        {/* DOWNLOAD PROJECTS BUTTON */}
+        <button
+          id="downloadProjects"
+          class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
+        >
+          <a href="/documents/projects.zip" download="Projects.zip">
+            Projetos
           </a>
         </button>
 

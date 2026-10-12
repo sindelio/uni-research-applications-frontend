@@ -39,7 +39,7 @@ function AdminProject() {
           {/* Edital */}
           <Anchor
             id=""
-            href="/images/documents/edital.pdf"
+            href="/documents/edital.pdf"
             inputClass="px-8 py-6"
             download="Edital.pdf"
           >
@@ -59,7 +59,7 @@ function AdminProject() {
           {/* Banner */}
           <Anchor
             id=""
-            href="/images/documents/banner.pptx"
+            href="/documents/banner.pptx"
             inputClass="px-8 py-6"
             download="Banner.pptx"
           >
