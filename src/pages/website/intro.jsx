@@ -193,6 +193,11 @@ function Intro(props) {
                 class="w-32 h-32 object-contain"
                 alt="Apoiador 4"
               />
+              <img
+                src="/images//supporters/supporter-5.jpg"
+                class="w-32 h-32 object-contain"
+                alt="Apoiador 5"
+              />
             </div>
           </div>
         </div>

@@ -170,13 +170,13 @@ function Navbar() {
           </a>
         </button>
 
-        {/* DOWNLOAD PROJECTS BUTTON */}
+        {/* DOWNLOAD EXHIBITION BUTTON */}
         <button
-          id="downloadProjects"
+          id="downloadExposition"
           class="px-8 py-4 md:py-0 hover:underline rounded-full focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out"
         >
-          <a href="/documents/projects.zip" download="Projects.zip">
-            Projetos
+          <a href="/documents/exposition.zip" download="Exibição.zip">
+            Exposição
           </a>
         </button>
 
